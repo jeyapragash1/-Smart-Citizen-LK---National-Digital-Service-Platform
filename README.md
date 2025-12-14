@@ -132,24 +132,27 @@ Use these accounts to test the different dashboards.
 ---
 
 ## 📂 Project Structure
-smart-citizen-project/
-├── smart-citizen-backend/ # Python FastAPI Server
-│ ├── routes/ # API Endpoints (Auth, App, Admin)
-│ ├── utils/ # PDF Generator Logic
-│ ├── generated_certs/ # Storage for PDFs
-│ ├── main.py # App Entry Point
-│ └── database.py # MongoDB Connection
-│
-└── smart-citizen-frontend/ # Next.js Client
-├── src/app/ # App Router (Pages)
-│ ├── (auth)/ # Login/Register
-│ ├── dashboard/ # Citizen Portal
-│ ├── admin/ # Government Portals
-│ └── marketplace/ # E-Commerce
-├── src/components/ # Reusable UI (Chatbot, Navbar)
-└── src/lib/ # API Connector (api.ts)
+```plaintext
+smart-citizen/
+├── smart-citizen-backend/
+│   ├── app/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   ├── seed.py
+│   └── main.py
+└── smart-citizen-frontend/
+    ├── pages/
+    ├── components/
+    ├── styles/
+    └── utils/
+```
 
+---
 
+## 📝 License
+
+This project is licensed under the MIT License.
 ---
 
 ### 👨‍💻 Developed By
