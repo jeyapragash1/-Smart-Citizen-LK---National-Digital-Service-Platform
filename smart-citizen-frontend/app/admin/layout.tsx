@@ -73,7 +73,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     themeColor = 'bg-blue-900';
     menuItems = [
       { name: 'GS Overview', icon: <LayoutDashboard size={20} />, path: '/admin/gs' },
-      { name: 'Pending Verifications', icon: <FileCheck size={20} />, path: '/admin/gs/verify' },
+      { name: 'Application Approvals', icon: <FileCheck size={20} />, path: '/admin/gs/approvals' },
+      { name: 'Manage Citizens', icon: <Users size={20} />, path: '/admin/gs/citizens' },
       { name: 'Villager Database', icon: <Users size={20} />, path: '/admin/gs/villagers' },
       { name: 'Land Disputes', icon: <MapPin size={20} />, path: '/admin/gs/land' },
     ];
@@ -82,7 +83,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     themeColor = 'bg-purple-900';
     menuItems = [
       { name: 'DS Overview', icon: <LayoutDashboard size={20} />, path: '/admin/ds' },
-      { name: 'Approval Queue', icon: <Stamp size={20} />, path: '/admin/ds/approvals' },
+      { name: 'Application Approvals', icon: <FileCheck size={20} />, path: '/admin/ds/approvals' },
+      { name: 'Manage GS Officers', icon: <Users size={20} />, path: '/admin/ds/gs' },
       { name: 'Signed Certificates', icon: <FileText size={20} />, path: '/admin/ds/certificates' },
       { name: 'Regional Reports', icon: <Building2 size={20} />, path: '/admin/ds/reports' },
     ];
@@ -91,6 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     themeColor = 'bg-slate-950';
     menuItems = [
       { name: 'System Monitor', icon: <Activity size={20} />, path: '/admin/super' },
+      { name: 'Manage DS Divisions', icon: <Users size={20} />, path: '/admin/super/divisions' },
       { name: 'Officer Management', icon: <Users size={20} />, path: '/admin/super/users' },
       { name: 'Marketplace Manager', icon: <ShoppingBag size={20} />, path: '/admin/super/products' },
       { name: 'Service Configuration', icon: <Settings size={20} />, path: '/admin/super/services' },

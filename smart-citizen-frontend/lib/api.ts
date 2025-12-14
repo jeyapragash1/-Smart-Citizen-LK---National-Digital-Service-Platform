@@ -308,6 +308,86 @@ export const getSystemStats = async () => {
   return await response.json();
 };
 
+// ==========================================
+// NEW: HIERARCHY MANAGEMENT (Admin, DS, GS)
+// ==========================================
+
+// ===== ADMIN ENDPOINTS =====
+export const assignDSToDiv = async (data: {
+  ds_nic: string;
+  province: string;
+  district: string;
+  ds_division: string;
+}) => {
+  const response = await fetch(`${API_URL}/api/admin/assign-ds`, {
+    method: "POST",
+    headers: getAuthHeader(),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(getErrorMessage(result));
+  return result;
+};
+
+export const getAllDivisions = async () => {
+  const response = await fetch(`${API_URL}/api/admin/divisions`, {
+    method: "GET",
+    headers: getAuthHeader(),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(getErrorMessage(data));
+  return data;
+};
+
+// ===== DS ENDPOINTS =====
+export const addGSOfficer = async (data: {
+  fullname: string;
+  nic: string;
+  phone: string;
+  email: string;
+  password: string;
+  gs_section: string;
+  address: string;
+}) => {
+  const response = await fetch(`${API_URL}/api/ds/add-gs`, {
+    method: "POST",
+    headers: getAuthHeader(),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(getErrorMessage(result));
+  return result;
+};
+
+export const getGSOfficers = async () => {
+  const response = await fetch(`${API_URL}/api/ds/gs-officers`, {
+    method: "GET",
+    headers: getAuthHeader(),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(getErrorMessage(data));
+  return data;
+};
+
+// ===== GS ENDPOINTS =====
+export const addCitizen = async (data: {
+  fullname: string;
+  nic: string;
+  phone: string;
+  email: string;
+  password: string;
+  address: string;
+}) => {
+  const response = await fetch(`${API_URL}/api/gs/add-citizen`, {
+    method: "POST",
+    headers: getAuthHeader(),
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(getErrorMessage(result));
+  return result;
+};
+
 // Download Certificate URL Builder
 export const getDownloadUrl = (appId: string) => {
   return `${API_URL}/api/applications/${appId}/download`;

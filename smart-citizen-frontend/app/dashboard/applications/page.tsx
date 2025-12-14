@@ -18,6 +18,7 @@ import {
   X
 } from 'lucide-react';
 import { getMyApplications, getDownloadUrl, deleteApplication } from '@/lib/api';
+import ApprovalInterface from '@/components/ApprovalInterface';
 
 // Define the shape of our data
 interface Application {
@@ -25,6 +26,15 @@ interface Application {
   service_type: string;
   status: string;
   created_at: string;
+  approval_level?: string;
+  current_approval_stage?: string;
+  approval_chain?: Array<{
+    level: string;
+    nic: string;
+    action: string;
+    timestamp: string;
+    comments: string;
+  }>;
   details: {
     name: string;
     phone: string;
@@ -245,7 +255,7 @@ export default function ApplicationsPage() {
                 </div>
 
                 {/* Modal Content */}
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center">
                         <span className="text-sm text-blue-700 font-medium">Current Status</span>
                         {getStatusBadge(selectedApp.status)}
@@ -271,6 +281,26 @@ export default function ApplicationsPage() {
                             </p>
                         </div>
                     </div>
+
+                    {/* Approval Chain Section */}
+                    {selectedApp.approval_chain && selectedApp.approval_chain.length > 0 && (
+                        <div className="border-t border-gray-200 pt-6">
+                            <h4 className="font-semibold text-gray-900 mb-4">Approval Workflow</h4>
+                            <ApprovalInterface 
+                                applicationId={selectedApp._id}
+                                currentStage={selectedApp.current_approval_stage || 'pending'}
+                                approvalChain={selectedApp.approval_chain}
+                                onApprove={() => {
+                                    // This would be called by officer reviewing the application
+                                    console.log('Approved:', selectedApp._id);
+                                }}
+                                onReject={() => {
+                                    // This would be called by officer reviewing the application
+                                    console.log('Rejected:', selectedApp._id);
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Modal Footer */}

@@ -39,7 +39,7 @@ interface Application {
   };
 }
 
-export default function DSApprovalsPage() {
+export default function GSApprovalsPage() {
   const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,8 +55,8 @@ export default function DSApprovalsPage() {
       setLoading(true);
       setError('');
 
-      // Fetch pending applications for this DS officer
-      const res = await fetch('/api/ds/applications/pending', {
+      // Fetch pending applications for this GS officer
+      const res = await fetch('/api/gs/applications/pending', {
         headers: getAuthHeader(),
       });
 
@@ -95,7 +95,7 @@ export default function DSApprovalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Application Approvals</h1>
-        <p className="text-sm text-gray-500">Pending approvals: {applications.filter(a => a.status?.toLowerCase() === 'pending').length}</p>
+        <p className="text-sm text-gray-500">Pending applications: {applications.filter(a => a.status?.toLowerCase() === 'pending').length}</p>
       </div>
 
       {/* Applications Table */}
@@ -142,8 +142,8 @@ export default function DSApprovalsPage() {
                       {new Date(app.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      {app.current_approval_stage === 'ds' ? (
-                        <span className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold">Divisional Secretary</span>
+                      {app.current_approval_stage === 'gs' ? (
+                        <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Grama Niladhari</span>
                       ) : (
                         <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">{app.current_approval_stage || 'Pending'}</span>
                       )}
@@ -229,7 +229,7 @@ export default function DSApprovalsPage() {
                   <h4 className="font-semibold text-gray-900 mb-4">Approval Workflow</h4>
                   <ApprovalInterface
                     applicationId={selectedApp._id}
-                    currentStage={selectedApp.current_approval_stage || 'ds'}
+                    currentStage={selectedApp.current_approval_stage || 'gs'}
                     approvalChain={selectedApp.approval_chain}
                     onApprove={async (comments: string) => {
                       try {
