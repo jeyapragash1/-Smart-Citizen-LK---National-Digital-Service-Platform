@@ -15,48 +15,48 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-indigo-50 p-8 flex flex-col items-center">
       <div className="w-full max-w-2xl">
-        <Link href="/" className="inline-flex items-center text-gray-500 hover:text-gray-900 mb-8">
+        <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8 font-semibold transition">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
         </Link>
         
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center border border-gray-100">
-            <div className="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShieldCheck className="w-8 h-8" />
+        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center border-2 border-blue-100">
+            <div className="w-20 h-20 bg-gradient-to-b from-blue-100 to-indigo-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <ShieldCheck className="w-10 h-10" />
             </div>
             
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Document Verification</h1>
-            <p className="text-gray-500 mb-8">Enter the Certificate ID or Scan QR Code to verify authenticity.</p>
+            <h1 className="text-4xl font-black text-gray-900 mb-3 tracking-tight">Document Verification</h1>
+            <p className="text-gray-600 mb-10 font-semibold text-lg">Enter the Certificate ID or Scan QR Code to verify authenticity.</p>
 
-            <form onSubmit={handleVerify} className="relative max-w-md mx-auto mb-8">
+            <form onSubmit={handleVerify} className="relative max-w-md mx-auto mb-10">
                 <input 
                     type="text" 
                     value={docId}
                     onChange={(e) => setDocId(e.target.value)}
                     placeholder="Enter Certificate ID (e.g. BC-2025-XXXX)"
-                    className="w-full pl-5 pr-14 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-600 transition-colors"
+                    className="w-full pl-6 pr-16 py-4 border-2 border-blue-200 rounded-2xl text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-300 bg-white"
                 />
-                <button type="submit" className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white px-4 rounded-lg hover:bg-blue-700 transition">
+                <button type="submit" className="absolute right-2 top-2 bottom-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 rounded-xl hover:shadow-lg transition font-bold flex items-center gap-2">
                     <Search className="w-5 h-5" />
                 </button>
             </form>
 
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1"><ScanLine className="w-4 h-4"/> QR Scan Supported</span>
-                <span>•</span>
-                <span>Real-time Database</span>
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-700 font-semibold">
+                <span className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg"><ScanLine className="w-4 h-4 text-blue-600"/> QR Scan Supported</span>
+                <span className="text-gray-300">•</span>
+                <span className="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-lg">⚡ Real-time Database</span>
             </div>
 
             {/* Result Demo */}
             {result === 'valid' && (
-                <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-4 text-left animate-in fade-in slide-in-from-bottom-4">
-                    <div className="bg-green-100 p-2 rounded-full text-green-700">
-                        <CheckCircle className="w-6 h-6" />
+                <div className="mt-10 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl flex items-center gap-4 text-left animate-in fade-in slide-in-from-bottom-4 shadow-lg">
+                    <div className="bg-gradient-to-b from-green-100 to-emerald-100 p-3 rounded-full text-green-600 flex-shrink-0">
+                        <CheckCircle className="w-7 h-7" />
                     </div>
-                    <div>
-                        <h4 className="font-bold text-green-900">Valid Certificate Found</h4>
-                        <p className="text-sm text-green-700">Issued to: <strong>K.G. Saman Perera</strong> on 12/12/2024</p>
+                    <div className="flex-1">
+                        <h4 className="font-black text-green-900 text-lg">✓ Valid Certificate Found</h4>
+                        <p className="text-sm text-green-700 font-semibold mt-1">Issued to: <strong>K.G. Saman Perera</strong> on 12/12/2024</p>
                     </div>
                 </div>
             )}

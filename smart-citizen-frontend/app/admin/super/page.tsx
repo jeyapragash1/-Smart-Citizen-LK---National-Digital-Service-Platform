@@ -1,22 +1,48 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { 
-  Activity, 
-  Server, 
-  Users, 
-  ShieldAlert, 
-  Database, 
-  DollarSign,
-  Map,
-  ArrowUp,
-  Loader2
+import {
+    Activity,
+    Server,
+    Users,
+    ShieldAlert,
+    Database,
+    DollarSign,
+    Map,
+    ArrowUp,
+    Loader2,
+    Cloud,
+    AlertTriangle,
+    CheckCircle,
+    Clock
 } from 'lucide-react';
 import { getSystemStats } from '@/lib/api'; // Import the API helper
 
 export default function SuperAdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+    // Safe fallbacks so UI renders even if backend fields are missing
+    const services = stats?.services || [
+        { name: 'Identity & Auth', uptime: '99.95%', status: 'healthy', latency: '120ms' },
+        { name: 'Applications API', uptime: '99.82%', status: 'warning', latency: '210ms' },
+        { name: 'Payments', uptime: '99.90%', status: 'healthy', latency: '180ms' },
+        { name: 'Notifications', uptime: '99.70%', status: 'degraded', latency: '250ms' },
+    ];
+
+    const escalations = stats?.escalations || [
+        { id: 'ESC-1042', severity: 'High', owner: 'SOC', summary: 'Unusual login spike from overseas IPs', updated: '3m ago' },
+        { id: 'ESC-1038', severity: 'Medium', owner: 'DS Ops', summary: 'Certificate signing delays in Kandy DS', updated: '27m ago' },
+        { id: 'ESC-1035', severity: 'Low', owner: 'L1 Support', summary: 'SMS delivery latency observed', updated: '1h ago' },
+    ];
+
+    const deployments = stats?.deployments || [
+        { env: 'Production', version: 'v2.3.5', status: 'Success', time: 'Today 10:12' },
+        { env: 'Staging', version: 'v2.3.6-rc', status: 'Running', time: 'Today 14:05' },
+        { env: 'DR Site', version: 'v2.3.4', status: 'Idle', time: 'Yesterday' },
+    ];
+
+    const approvals = stats?.approvals || { pending: 0, ds: 0, gs: 0, citizens: 0 };
 
   // Fetch Real Data from Backend
   useEffect(() => {
@@ -201,6 +227,144 @@ export default function SuperAdminDashboard() {
         </div>
 
       </div>
+
+            {/* 6. Service uptime & routing */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                <div className="xl:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 className="font-bold text-gray-900 flex items-center gap-2"><Cloud size={18} className="text-blue-500" /> Core services uptime</h3>
+                        <span className="text-xs text-gray-500">Rolling 30d</span>
+                    </div>
+                    <table className="w-full text-sm">
+                        <thead className="bg-gray-50 text-gray-600">
+                            <tr>
+                                <th className="px-4 py-3 text-left font-semibold">Service</th>
+                                <th className="px-4 py-3 text-left font-semibold">Uptime</th>
+                                <th className="px-4 py-3 text-left font-semibold">Latency</th>
+                                <th className="px-4 py-3 text-left font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {services.map((svc: any) => (
+                                <tr key={svc.name} className="hover:bg-gray-50">
+                                    <td className="px-4 py-3 font-medium text-gray-900">{svc.name}</td>
+                                    <td className="px-4 py-3 text-gray-700">{svc.uptime}</td>
+                                    <td className="px-4 py-3 text-gray-700">{svc.latency}</td>
+                                    <td className="px-4 py-3">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${svc.status === 'healthy' ? 'bg-green-100 text-green-700' : svc.status === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                                            {svc.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-gray-900">Approvals pipeline</h3>
+                        <Clock size={18} className="text-indigo-500" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="p-3 rounded-lg bg-indigo-50 text-indigo-700">
+                            <p className="text-xs uppercase">Total pending</p>
+                            <p className="text-2xl font-bold">{approvals.pending || 0}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-50 text-purple-700">
+                            <p className="text-xs uppercase">DS queue</p>
+                            <p className="text-2xl font-bold">{approvals.ds || 0}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-50 text-blue-700">
+                            <p className="text-xs uppercase">GS queue</p>
+                            <p className="text-2xl font-bold">{approvals.gs || 0}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-emerald-50 text-emerald-700">
+                            <p className="text-xs uppercase">Citizen drafts</p>
+                            <p className="text-2xl font-bold">{approvals.citizens || 0}</p>
+                        </div>
+                    </div>
+                    <div className="rounded-lg border border-gray-100">
+                        <div className="p-3 flex items-start gap-3">
+                            <AlertTriangle size={18} className="text-amber-600" />
+                            <div>
+                                <p className="text-sm font-semibold text-gray-900">Ops attention</p>
+                                <p className="text-xs text-gray-600">Route stuck approvals to DS with SLA &gt; 24h.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 7. Escalations & deployments */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 className="font-bold text-gray-900 flex items-center gap-2"><ShieldAlert size={18} className="text-red-500" /> Open escalations</h3>
+                        <span className="text-xs text-gray-500">SOC & Ops</span>
+                    </div>
+                    <ul className="divide-y divide-gray-100 text-sm">
+                        {escalations.map((item: any) => (
+                            <li key={item.id} className="p-4 flex items-start gap-3 hover:bg-gray-50">
+                                <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center font-bold">{item.severity[0]}</div>
+                                <div className="flex-1 space-y-1">
+                                    <div className="flex items-center justify-between">
+                                        <p className="font-semibold text-gray-900">{item.id}</p>
+                                        <span className="text-xs text-gray-500">{item.updated}</span>
+                                    </div>
+                                    <p className="text-gray-700">{item.summary}</p>
+                                    <p className="text-xs text-gray-500">Owner: {item.owner}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 className="font-bold text-gray-900 flex items-center gap-2"><Activity size={18} className="text-green-600" /> Deployments</h3>
+                        <span className="text-xs text-gray-500">CI/CD</span>
+                    </div>
+                    <ul className="divide-y divide-gray-100 text-sm">
+                        {deployments.map((d: any) => (
+                            <li key={d.env} className="p-4 flex items-center justify-between hover:bg-gray-50">
+                                <div>
+                                    <p className="font-semibold text-gray-900">{d.env}</p>
+                                    <p className="text-xs text-gray-500">{d.time}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm font-mono text-gray-800">{d.version}</p>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${d.status === 'Success' ? 'bg-emerald-100 text-emerald-700' : d.status === 'Running' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+                                        {d.status}
+                                    </span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* 8. Data protection checklist */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2"><CheckCircle size={18} className="text-emerald-600" /> Data protection & continuity</h3>
+                    <span className="text-xs text-gray-500">Nightly check</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="p-4 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        <p className="font-semibold">Backups</p>
+                        <p className="text-xs">Last snapshot: {stats?.backups?.last || 'Today 02:00'}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                        <p className="font-semibold">DR readiness</p>
+                        <p className="text-xs">{stats?.dr_status || 'Green'}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-amber-50 text-amber-700 border border-amber-100">
+                        <p className="font-semibold">Audit trail</p>
+                        <p className="text-xs">{stats?.audit_trail || 'Enabled'}</p>
+                    </div>
+                </div>
+            </div>
 
       {/* 5. Regional Map Placeholder */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">

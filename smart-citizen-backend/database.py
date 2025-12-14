@@ -15,7 +15,9 @@ user_collection = database.get_collection("users")
 application_collection = database.get_collection("applications")
 product_collection = database.get_collection("products")
 land_collection = database.get_collection("land_disputes")
-# NEW: Service Config Collection
-service_collection = database.get_collection("services") 
+service_collection = database.get_collection("services")
+complaints_collection = database.get_collection("complaints")
+audit_log_collection = database.get_collection("audit_logs")
+notifications_collection = database.get_collection("notifications")
 
 print("✅ MongoDB Connection Settings Loaded.")

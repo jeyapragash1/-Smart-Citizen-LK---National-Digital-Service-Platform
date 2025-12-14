@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Clock,
-  CheckCircle,
-  XCircle,
   AlertCircle,
   Loader2,
   Eye,
@@ -46,11 +43,7 @@ export default function GSApprovalsPage() {
   const [error, setError] = useState('');
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
-  useEffect(() => {
-    loadApplications();
-  }, []);
-
-  const loadApplications = async () => {
+  const loadApplications = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -75,20 +68,11 @@ export default function GSApprovalsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'completed':
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold"><CheckCircle size={12} /> Approved</span>;
-      case 'pending':
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold"><Clock size={12} /> Pending Review</span>;
-      case 'rejected':
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold"><XCircle size={12} /> Rejected</span>;
-      default:
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-bold"><AlertCircle size={12} /> {status}</span>;
-    }
-  };
+  useEffect(() => {
+    loadApplications();
+  }, [loadApplications]);
 
   return (
     <div className="space-y-6">
@@ -178,6 +162,7 @@ export default function GSApprovalsPage() {
               <button
                 onClick={() => setSelectedApp(null)}
                 className="text-gray-400 hover:text-gray-900"
+                title="Close modal"
               >
                 <X size={24} />
               </button>

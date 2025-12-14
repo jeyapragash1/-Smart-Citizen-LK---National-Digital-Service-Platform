@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Clock,
-  CheckCircle,
-  XCircle,
   AlertCircle,
   Loader2,
   Eye,
@@ -13,7 +10,7 @@ import {
   FileText
 } from 'lucide-react';
 import ApprovalInterface from '@/components/ApprovalInterface';
-import { getAuthHeader, getErrorMessage } from '@/lib/api';
+import { getAuthHeader, getErrorMessage, getDSQueue } from '@/lib/api';
 
 interface ApprovalChainItem {
   level: string;
@@ -46,49 +43,40 @@ export default function DSApprovalsPage() {
   const [error, setError] = useState('');
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
-  useEffect(() => {
-    loadApplications();
-  }, []);
-
-  const loadApplications = async () => {
+  const loadApplications = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
 
-      // Fetch pending applications for this DS officer
-      const res = await fetch('/api/ds/applications/pending', {
-        headers: getAuthHeader(),
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          router.push('/login');
-          return;
-        }
-        throw new Error(getErrorMessage(res.status));
-      }
-
-      const data = await res.json();
-      setApplications(data.applications || []);
+      // Fetch pending applications from backend
+      const data = await getDSQueue();
+      const list = Array.isArray(data) ? data : data.applications || data.queue || [];
+      // Normalize shape to `Application`
+      const normalized = list.map((it: any) => ({
+        _id: it._id || it.id || it.ref || crypto.randomUUID(),
+        service_type: it.service_type || it.service || 'Unknown',
+        status: it.status || 'Pending',
+        created_at: it.created_at || it.createdAt || new Date().toISOString(),
+        current_approval_stage: it.current_approval_stage || it.stage || 'ds',
+        approval_chain: it.approval_chain || it.workflow || [],
+        details: {
+          name: it.applicant_name || it.name || 'Unknown',
+          phone: it.phone || it.applicant_phone || 'N/A',
+          address: it.address || it.applicant_address,
+          reason: it.reason || it.description,
+        },
+      }));
+      setApplications(normalized);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load applications');
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'completed':
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold"><CheckCircle size={12} /> Approved</span>;
-      case 'pending':
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold"><Clock size={12} /> Pending Review</span>;
-      case 'rejected':
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold"><XCircle size={12} /> Rejected</span>;
-      default:
-        return <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-bold"><AlertCircle size={12} /> {status}</span>;
-    }
-  };
+  useEffect(() => {
+    loadApplications();
+  }, [loadApplications]);
 
   return (
     <div className="space-y-6">
@@ -178,6 +166,7 @@ export default function DSApprovalsPage() {
               <button
                 onClick={() => setSelectedApp(null)}
                 className="text-gray-400 hover:text-gray-900"
+                title="Close modal"
               >
                 <X size={24} />
               </button>

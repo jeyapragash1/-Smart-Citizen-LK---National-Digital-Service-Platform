@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   FileText, 
@@ -15,7 +15,23 @@ import {
   Globe,
   ShoppingBag,
   Menu,
-  X
+  X,
+  Lock,
+  Zap,
+  BarChart3,
+  Users,
+  Clock,
+  CheckCircle,
+  Star,
+  MapPin,
+  TrendingUp,
+  Award,
+  Headphones,
+  Shield,
+  Database,
+  Send,
+  Wallet,
+  User
 } from 'lucide-react';
 
 // ==========================================
@@ -80,6 +96,90 @@ const translations = {
       links: "Quick Links",
       legal: "Legal",
       contact: "Contact"
+    },
+    features: {
+      title: "Powerful Features",
+      desc: "Everything you need for seamless government services",
+      feature1: "Digital Wallet",
+      feature1desc: "Store all your certificates and documents digitally",
+      feature2: "Real-time Tracking",
+      feature2desc: "Track application status at every approval stage",
+      feature3: "Paperless Process",
+      feature3desc: "Complete submission and approval without paper",
+      feature4: "Multi-language Support",
+      feature4desc: "Available in Sinhala, Tamil, and English",
+      feature5: "24/7 Accessibility",
+      feature5desc: "Access services anytime, anywhere online",
+      feature6: "Secure & Encrypted",
+      feature6desc: "Bank-level security for all your data"
+    },
+    hierarchy: {
+      title: "Administrative Hierarchy",
+      desc: "Streamlined approval process through government tiers",
+      citizen: "Citizens",
+      citizenDesc: "Apply for services with complete digital submission",
+      gs: "Grama Niladhari (GS)",
+      gsDesc: "Village-level officer reviews and approves applications",
+      ds: "Divisional Secretary (DS)",
+      dsDesc: "District-level officer provides secondary approval",
+      admin: "Super Admin",
+      adminDesc: "System administrator monitors overall platform health"
+    },
+    security: {
+      title: "Security & Privacy",
+      desc: "Your data is protected with government-grade security",
+      encryption: "End-to-End Encryption",
+      encryptionDesc: "All data encrypted during transmission and storage",
+      verification: "Multi-Factor Authentication",
+      verificationDesc: "Secure login with NIC and OTP verification",
+      audit: "Audit Trail",
+      auditDesc: "Complete record of all transactions and approvals",
+      compliance: "Compliance",
+      complianceDesc: "Meets international data protection standards"
+    },
+    marketplace: {
+      title: "Smart Marketplace",
+      desc: "Discover related products and services",
+      related: "Health & Insurance Plans",
+      relatedDesc: "Personalized plans based on your life events",
+      products: "Government Products",
+      productsDesc: "Official government services marketplace",
+      partners: "Partner Services",
+      partnersDesc: "Connect with verified private sector partners"
+    },
+    faq: {
+      title: "Frequently Asked Questions",
+      q1: "How do I apply for a service?",
+      a1: "Simply log in, select your desired service, fill the digital form, and upload required documents. Our officers will review and notify you of the decision.",
+      q2: "How long does approval take?",
+      a2: "Most services are approved within 3-7 working days, depending on the specific service and required documentation.",
+      q3: "Is my data safe?",
+      a3: "Yes, we use bank-level encryption and follow international security standards to protect your personal information.",
+      q4: "Can I track my application?",
+      a4: "Yes, you can track real-time status updates and see which officer is currently reviewing your application.",
+      q5: "What if I need help?",
+      a5: "Contact our 24/7 support team via live chat, email, or call our hotline 1919 for immediate assistance."
+    },
+    coverage: {
+      title: "National Coverage",
+      desc: "Serving all provinces across Sri Lanka",
+      provinces: "9 Provinces",
+      districts: "25 Districts",
+      divisions: "300+ GS Divisions",
+      villages: "5000+ Villages"
+    },
+    testimonial: {
+      title: "What Citizens Say",
+      desc: "Real feedback from Smart Citizen users",
+      user1: "Saves Me Hours!",
+      user1desc: "I got my vital certificate in just 5 days instead of waiting 2 weeks at the office. Smart Citizen changed my life!",
+      user1name: "Saman Perera, Colombo",
+      user2: "Trust the System",
+      user2desc: "The security is impressive and the process is so transparent. I can see exactly who approved my application.",
+      user2name: "Lakshmi Singh, Kandy",
+      user3: "Finally, Digital Sri Lanka!",
+      user3desc: "This is how government services should work. Easy, fast, and secure. Proud of our country's progress!",
+      user3name: "Ahmed Hassen, Matara"
     }
   },
   si: {
@@ -140,6 +240,90 @@ const translations = {
       links: "සබැඳි",
       legal: "නීතිමය",
       contact: "අමතන්න"
+    },
+    features: {
+      title: "ශක්තිශාලී විශේෂාංග",
+      desc: "සරල රාජ්‍ය සේවාවන් සඳහා අවශ්‍ය සියල්ල",
+      feature1: "ඩිජිටල් පසුම්බිය",
+      feature1desc: "සියලුම සහතික සහ ලේඛන ඩිජිටල්ව ගබඩා කරන්න",
+      feature2: "සැබෑ කාලීන ලුහුබැඩුම",
+      feature2desc: "සෑම අනුමැති තරඡාවේ අයදුම් තත්ත්වය සොයන්න",
+      feature3: "කඩදා රහිත ක්‍රියාවලිය",
+      feature3desc: "කඩදා පත්‍ර ছাড়าම සම්පූර්ණ ඉදිරිපත් සහ අනුමැතිය",
+      feature4: "බහුභාෂා සහාය",
+      feature4desc: "සිංහල, දෙමළ සහ ඉංග්‍රීසි භාවිතා කරන්න",
+      feature5: "24/7 ප්‍රවේශ්‍යතාව",
+      feature5desc: "ඕනෑම වේලාවේ, ඕනෑම තැනෙන් සේවා ප්‍රවේශ කරන්න",
+      feature6: "ආරක්ෂිත සහ සංකේතනය",
+      feature6desc: "ඔබගේ සියලුම දත්ත සඳහා බැංකු-මට්ටමේ ආරක්ෂාව"
+    },
+    hierarchy: {
+      title: "පරිපාලන ධුරාවලිය",
+      desc: "රජයේ ස්ථරයන් හරහා සරල අනුමැති ක්‍රියාවලිය",
+      citizen: "පුරවැසියෝ",
+      citizenDesc: "සම්පූර්ණ ඩිජිටල් ඉදිරිපත් සහිත සේවා සඳහා අයදුම් කරන්න",
+      gs: "ග්‍රාම නිලධාරී (GS)",
+      gsDesc: "ගම්බිම අධිකාරී අයදුම් සමාලෝචනය සහ අනුමත කරයි",
+      ds: "බෙදා හැරීමේ සලකුණු (DS)",
+      dsDesc: "දිස්ත්‍රික්කයේ අධිකාරී ද්විතීයික අනුමැතිය ප්‍රදාන කරයි",
+      admin: "සුපර් පරිපාලක",
+      adminDesc: "පද්ධති පරිපාලක සामගි්‍ර වේදිකා සෞඛ්‍යය නිරීක්ෂණ කරයි"
+    },
+    security: {
+      title: "ආරක්ෂාව සහ රහස්‍යතාව",
+      desc: "ඔබගේ දත්ත රජයේ-මට්ටමේ ආරක්ෂාවෙන් ගනවා ඇත",
+      encryption: "අන්තය සිට අන්තය සංකේතනය",
+      encryptionDesc: "සම්ප්‍රේෂණ සහ ගබඩා කිරීමේදී සියලුම දත්ත සංකේතනය කරනු ලැබේ",
+      verification: "බහු-සාධක සත්‍යාපනය",
+      verificationDesc: "NIC සහ OTP සත්‍යාපනයෙන් ආරක්ෂිත ලොගින්",
+      audit: "විගණන අංගය",
+      auditDesc: "සියලුම ගනුදෙනු සහ අනුමතිවල සම්පූර්ණ වාර්තාව",
+      compliance: "ඒකාබද්ධතාව",
+      complianceDesc: "ජාත්‍යන්තර දත්ත ආරක්ෂණ ප්‍රමිතිවලට පැමිණේ"
+    },
+    marketplace: {
+      title: "ස්මාර්ට් වෙළඳපොළ",
+      desc: "සම්බන්ධ නිෂ්පාදන සහ සේවා සොයා ගන්න",
+      related: "සෞඛ්‍ය සහ ඉතුරු සැලසුම්",
+      relatedDesc: "ඔබගේ ජීවන සිදුවීම්වලට පිළිබඳ ගුණාංගිත සැලසුම්",
+      products: "ගිණුම් නිෂ්පාදන",
+      productsDesc: "නිල රජයේ සේවා වෙළඳපොළ",
+      partners: "හවුල්කරු සේවා",
+      partnersDesc: "සත්‍යාපිත පෞද්ගලික ක්ෂේත්‍ර හවුල්කරුවරුන් සම්බන්ධ කරන්න"
+    },
+    faq: {
+      title: "නිතර අසන ප්‍රශ්ණ",
+      q1: "මම සේවාව සඳහා අයදුම් කරන්නේ කෙසේද?",
+      a1: "සරලවම පිවිසෙන්න, ඔබගේ අපේක්ෂිත සේවාව තෝරා ගන්න, ඩිජිටල් පෝරම පුරවන්න සහ අවශ්‍ය ලේඛන උඩුගත කරන්න। අපගේ නිලධාරීන් සමාලෝචනය කර ඔබට තීරණය දැනුම් දෙනු ඇත.",
+      q2: "අනුමැතිය ගැනීමට කොපමණ කාලයක් ගතවේ?",
+      a2: "බොහොමඳු සේවා 3-7 වැඩ දිනක් ඉතුරු කරනු ලැබේ, නිර්දිෂ්ට සේවාව සහ අවශ්‍ය ලේඛන වලට බලපතරා.",
+      q3: "මගේ දත්ත ආරක්ෂිතද?",
+      a3: "ඔත්තේ, අපි බැංකු-මට්ටමේ සංකේතනය භාවිතා කරමු සහ ඔබගේ පෞද්ගලික තොරතුරු ගනවා ගැනීම සඳහා ජාත්‍යන්තර ආරක්ෂණ ප්‍රමිතිවල අනුගමනය කරමු.",
+      q4: "මගේ අයදුම් සොයා ගත හැකිද?",
+      a4: "ඔත්තේ, ඔබට සැබෑ කාලීන තත්ත්ව යාවත්කාල කිරීම් සොයා ගත හැකි අතර, කුමන නිලධාරී ඔබගේ අයදුම් ගවේෂණ කරයි යන්න බැලිය හැකිය.",
+      q5: "මට සහාය අවශ්‍ය නම් කුමක් කරමි?",
+      a5: "24/7 සහාය කණ්ඩායමට ලයිව් කතාබස, ඉමේල් හෝ අපගේ හොට්ලයින් 1919 වෙත ඉතා ඉක්මන් සහාය ඉල්ලා සිටින්න."
+    },
+    coverage: {
+      title: "ජාතික ගිණුම",
+      desc: "ශ්‍රී ලංකා පුරාවට සේවා කිරීම",
+      provinces: "පළාත් 9 ක්",
+      districts: "දිස්ත්‍රික්ක 25",
+      divisions: "GS අංශ 300+",
+      villages: "ගම්බිම් 5000+"
+    },
+    testimonial: {
+      title: "පුරවැසියෝ සොයන්න",
+      desc: "ස්මාර්ට් පුරවැසි භාවිතාකරුවරුන්ගේ සැබෑ ප්‍රතිචාරය",
+      user1: "මට පැයයි සඳහා සිටුවයි!",
+      user1desc: "මම 5 දිනක් ඉතුරු සහතිකය ලබා ගත්තෙමි, ඉන්පසු කාර්යාලයේ 2 සතර සඳහා බලා ගිය බැවින්. ස්මාර්ට් පුරවැසි මගේ ජීවිතය වෙනස් කරලා.",
+      user1name: "සමන් පෙරේරා, කොළඹ",
+      user2: "පද්ධතිය විශ්වාස කරන්න",
+      user2desc: "ආරක්ෂාව ඉතා දුර්ගම සහ ක්‍රියාවලිය ඉතා පැහැදිලිය. මට නිලධාරී ඔබගේ අයදුම් අනුමත කරන පිළිබඳ සිතිය හැකිය.",
+      user2name: "ලක්ෂ්‍මි සිංහ, කැන්ඩි",
+      user3: "අවසරම, ඩිජිටල් ශ්‍රී ලංකාව!",
+      user3desc: "එය රජයේ සේවා ක්‍රියා කිරීමට සිටිය යුතු ආකාරයි. පහසු, වේගවත් සහ ආරක්ෂිතයි. අපගේ රටේ අග්‍රගතිය ගර්විතයි!",
+      user3name: "අහමඩ් හසන්, මතරා"
     }
   },
   ta: {
@@ -200,6 +384,90 @@ const translations = {
       links: "இணைப்புகள்",
       legal: "சட்டம்",
       contact: "தொடர்பு"
+    },
+    features: {
+      title: "சக்திவாய்ந்த நிலைகள்",
+      desc: "இடமற்ற அரசாங்க சேவைகளுக்கு தேவையான எல்லாம்",
+      feature1: "டிஜிட்டல் பணப்பை",
+      feature1desc: "உங்கள் சான்றிதழ் மற்றும் ஆவணங்களை ডிজிட்டலாக சேமிக்கவும்",
+      feature2: "நேரம் பதிவு",
+      feature2desc: "ஒவ்வொரு ஒப்புதல் கட்டத்தில் விண்ணப்பத்தின் நிலை பதிவு செய்யவும்",
+      feature3: "அறிக்கை எண்ணற்ற செயல்முறை",
+      feature3desc: "அறிக்கை ছাড়াই முழு சமர்ப்பণ மற்றும் ஒப்புதல்",
+      feature4: "பலமொழி ஆதரவு",
+      feature4desc: "தமிழ், சிங்களம் மற்றும் ஆங்கிலத்தில் கிடைக்கும்",
+      feature5: "24/7 அணுகல்",
+      feature5desc: "எந்த நேரத்திலும், எங்கிருந்தும் சேவைகளை அணுகவும்",
+      feature6: "பாதுகாப்பான மற்றும் குறியாக்கம் செய்யப்பட்டது",
+      feature6desc: "உங்கள் அனைத்து தரவிற்கும் வங்கி-স்তরের பாதுகாப்பு"
+    },
+    hierarchy: {
+      title: "நிர்வாக ஒட்டிக்கொள்ளல்",
+      desc: "அரசு சுற்றுகளின் மাধ்যমে সুவ்வவ ஒப்புதல் செயல்முறை",
+      citizen: "குடிமக்கள்",
+      citizenDesc: "முழு டிஜிட்டல் சமர்ப்பண உடன் சேவைக்கு விண்ணப்பிக்கவும்",
+      gs: "க்ராம தில்ளுத்र (GS)",
+      gsDesc: "கிராம-நிலை அதிகாரி விண்ணப்பங்களை மর்ஜ்ஜனம் செய்கிறார் மற்றும் ஒப்புக்கொள்கிறார்",
+      ds: "பிভாகீய செயலாளர் (DS)",
+      dsDesc: "மாவட்ட-நிலை அதிகாரி இரண்டாம் நிலை ஒப்புதல் வழங்குகிறார்",
+      admin: "சுபர் நிர்வாக",
+      adminDesc: "பணி நிர்வாகி ஒட்டு மொத்த மंत्भूमि ஆரோக்கியத்தை கண்காணிக்கிறார்"
+    },
+    security: {
+      title: "பாதுகாப்பு மற்றும் ரகசியத்தன்மை",
+      desc: "உங்கள் தரவு அரசாங்க-மதம் பாதுகாப்பு இருந்து பாதுகாக்கப்பட்டுள்ளது",
+      encryption: "முடிவு முதல் முடிவு என்க்রिप்शन",
+      encryptionDesc: "பரிবহन மற்றும் சேமிப்பின் போது அனைத்து தரவு குறியாக்கம் செய்யப்படுகிறது",
+      verification: "பல-வழி ஆधार",
+      verificationDesc: "NIC மற்றும் OTP ஆதரத்துடன் பாதுகாப்பான உள்நுழைவு",
+      audit: "অডிட் பாதை",
+      auditDesc: "அனைத்து பரிவர்த்தனை மற்றும் ஒப்புதல்களின் முழு பதிவு",
+      compliance: "இணக்க",
+      complianceDesc: "பன்னாட்டு தரவு பாதுகாப்பு தரங்கள் பூரணப்படுத்தம்"
+    },
+    marketplace: {
+      title: "স্मार्ট சந்தை",
+      desc: "தொடர்புடைய பொருட்கள் மற்றும் சேவைகளை আবிஷ்கரிக்கவும்",
+      related: "ஆரோக்கியம் மற்றும் காப்பீட்டு திட்டங்கள்",
+      relatedDesc: "உங்கள் வாழ்க்கைய நிகழ்வுகளின் அடிப்படையில் தனிப்படுத்தப்பட்ட திட்டங்கள்",
+      products: "அரசாங்க பொருட்கள்",
+      productsDesc: "அதிகாரபூர்வ அரசாங்க சேவை சந்தை",
+      partners: "கூட்டாளி சேவைகள்",
+      partnersDesc: "যாচொதிக்கப்பட்ட தனிப்பட்ட பகுதி கூட்டாளிகளுடன் இணைக்கவும்"
+    },
+    faq: {
+      title: "அடிக்கடி கேட்கப்பட்ட கேள்விகள்",
+      q1: "நான் ஒரு சேவையுக்கு எப்படி விண்ணப்பிக்க வேண்டும்?",
+      a1: "உள்நுழைய, உங்கள் விரும்பிய சேவையைத் தேர்ந்தெடுத்து, டிஜிட்டல் படிவத்தை பூரணப்படுத்தி, தேவையான ஆவணங்களை அபேசமுற்றவும். எங்கள் அதிகாரிகள் மர்ஜ்ஜனம் செய்யும் மற்றும் முடிவை குறிப்பிடும்.",
+      q2: "ஒப்புதல் எவ்வளவு நேரம் எடுக்கும்?",
+      a2: "பெரும்பாலான சேவைகள் 3-7 வணிக நாட்களில் ஒப்புக்கொள்ளப்பட்டுள்ளன, குறிப்பிட்ட சேவை மற்றும் தேவையான ஆவணங்களைப் பொறுத்து.",
+      q3: "என் தரவு பாதுகாப்பாக இருக்கிறதா?",
+      a3: "ஆம், நாம் வங்கி-முதல் encryption அனுப்பி நீங்கள் சொந்த ஜ்ञान பாதுகாற்ற பன்னாட்டு பாதுகாப்பு தர பின்பற்றுகிறோம்.",
+      q4: "நான் என் விண்ணப்பத்தைக் கண்டு பிடிக்க முடியுமா?",
+      a4: "ஆம், நீங்கள் நேரடி தர განცნობizen புதுப்பிப்புகளை கண்டு பிடிக்க முடியும் மற்றும் அளவை அறிய வேண்டும் என்ற அதிகாரி உங்கள் விண்ணப்பத்தை மர್ஜ்ஜனம் செய்யும்.",
+      q5: "எனக்கு உதவி தேவை என்றால் என்ன செய்ய வேண்டும்?",
+      a5: "live chat, email அல்லது நம்முடைய Hotline 1919 மூலம் 24/7 உதவி குழுவை தொடர்பு கொள்ள. உடனடி உதவि."
+    },
+    coverage: {
+      title: "தேசிய பாதுகாப்பு",
+      desc: "ஸ்ரீலங்கா முழுவதும் அனைத்து மாநிலங்களிற்கு சேவை செய்யும்",
+      provinces: "9 மாநிலங்கள்",
+      districts: "25 மாவட்டம்",
+      divisions: "300+ GS பிரிவுகள்",
+      villages: "5000+ கிராமங்கள்"
+    },
+    testimonial: {
+      title: "குடிமக்கள் என்ன சொல்கிறார்கள்",
+      desc: "স்மாร்ட் பாகுडन் பயனர்களின் உண்மையான கருத்து",
+      user1: "எனக்கு மணிநேரங்களை சேமிக்கிறது!",
+      user1desc: "நான் 5 நாட்களில் வலிக்கும் சான்றிதழ் பெற்றேன் கார்யாலயத்தে 2 வாரம் காத்திருப்பதற்கு பதிலாக. ஸ்மার్ட் Citizen என் வாழ்க்கை பரிணாமம் செய்தான்!",
+      user1name: "சமன் Perera, கொலம்பம்",
+      user2: "பணி உணர்ந்து",
+      user2desc: "பாதுகாப்பு பत்தீயமாக மேம்படுத்தப்பட்டுள்ளது மற்றும் செயல்முறை மிகவும் வெளிப்படையாக உள்ளது. நான் பயன்படுத்துபவர் என்ன உங்கள் விண்ணப்பம் அனுமதிக்கப்பட்ட என பார்க்க முடியும்.",
+      user2name: "லक्ष्मी सिंग, कण्ठी",
+      user3: "இறுதியாக, डिজिटल స्रीलंका!",
+      user3desc: "இது அரசாங்க சேவைகள் வேலை செய்ய வேண்டும் என்ற வழி. தைरदೋನನಕೋಪkaal, ವೇಗೆವಾತೆ ಮತೆ ಆರೋಕಸೆ. ನಮದೆ ಡೈಸರೆರ್ ಅಳಿಂಬಾವಾ ಗರೀನೆ!",
+      user3name: "அหमद் హસसன్, మतरా"
     }
   }
 };
@@ -209,7 +477,14 @@ type Language = 'en' | 'si' | 'ta';
 export default function LandingPage() {
   const [lang, setLang] = useState<Language>('en');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const t = translations[lang];
+
+  // Check if user is logged in
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    setIsLoggedIn(!!token);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -257,16 +532,29 @@ export default function LandingPage() {
                 <button onClick={() => setLang('ta')} className={`px-2 py-1 text-xs rounded ${lang === 'ta' ? 'bg-white shadow text-blue-700 font-bold' : 'text-gray-500 hover:text-gray-900'}`}>தமிழ்</button>
               </div>
 
-              <Link href="/login">
-                <button className="hidden md:block px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition">
-                  {t.nav.login}
-                </button>
-              </Link>
-              <Link href="/register">
-                <button className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-md hover:shadow-lg transition">
-                  {t.nav.register}
-                </button>
-              </Link>
+              {/* User Dashboard Icon - Shows when logged in */}
+              {isLoggedIn && (
+                <Link href="/dashboard">
+                  <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition shadow-sm border border-blue-300" title="Go to Dashboard">
+                    <User size={20} />
+                  </button>
+                </Link>
+              )}
+
+              {!isLoggedIn && (
+                <>
+                  <Link href="/login">
+                    <button className="hidden md:block px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition">
+                      {t.nav.login}
+                    </button>
+                  </Link>
+                  <Link href="/register">
+                    <button className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-md hover:shadow-lg transition">
+                      {t.nav.register}
+                    </button>
+                  </Link>
+                </>
+              )}
               
               {/* Mobile Menu Button */}
               <div className="md:hidden">
@@ -329,14 +617,18 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="px-8 py-4 bg-blue-700 text-white rounded-xl font-semibold text-lg shadow-xl hover:bg-blue-800 hover:scale-105 transition-all duration-200 flex items-center gap-2">
-              <UserCheck className="w-5 h-5" />
-              {t.hero.btnPrimary}
-            </button>
-            <button className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-xl font-semibold text-lg shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2">
-              <Search className="w-5 h-5" />
-              {t.hero.btnSecondary}
-            </button>
+            <Link href="/dashboard">
+              <button className="px-8 py-4 bg-blue-700 text-white rounded-xl font-semibold text-lg shadow-xl hover:bg-blue-800 hover:scale-105 transition-all duration-200 flex items-center gap-2">
+                <UserCheck className="w-5 h-5" />
+                {t.hero.btnPrimary}
+              </button>
+            </Link>
+            <Link href="/services">
+              <button className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-xl font-semibold text-lg shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2">
+                <Search className="w-5 h-5" />
+                {t.hero.btnSecondary}
+              </button>
+            </Link>
           </div>
 
           {/* Stats Bar */}
@@ -533,7 +825,222 @@ export default function LandingPage() {
       </section>
 
       {/* =======================
-          7. FOOTER
+          7. KEY FEATURES
+      ======================== */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t.features.title}</h2>
+            <p className="text-lg text-gray-600">{t.features.desc}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: <Wallet className="w-8 h-8" />, title: t.features.feature1, desc: t.features.feature1desc },
+              { icon: <Clock className="w-8 h-8" />, title: t.features.feature2, desc: t.features.feature2desc },
+              { icon: <FileText className="w-8 h-8" />, title: t.features.feature3, desc: t.features.feature3desc },
+              { icon: <Globe className="w-8 h-8" />, title: t.features.feature4, desc: t.features.feature4desc },
+              { icon: <Zap className="w-8 h-8" />, title: t.features.feature5, desc: t.features.feature5desc },
+              { icon: <Lock className="w-8 h-8" />, title: t.features.feature6, desc: t.features.feature6desc },
+            ].map((feature, idx) => (
+              <div key={idx} className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition border border-gray-200">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-gray-600 text-sm">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          8. ADMINISTRATIVE HIERARCHY
+      ======================== */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t.hierarchy.title}</h2>
+            <p className="text-lg text-gray-600">{t.hierarchy.desc}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-b from-orange-50 to-orange-100 p-8 rounded-xl border-2 border-orange-300">
+              <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold mb-4">C</div>
+              <h3 className="text-lg font-bold text-orange-900 mb-2">{t.hierarchy.citizen}</h3>
+              <p className="text-orange-800 text-sm">{t.hierarchy.citizenDesc}</p>
+            </div>
+            <div className="bg-gradient-to-b from-blue-50 to-blue-100 p-8 rounded-xl border-2 border-blue-300">
+              <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mb-4">GS</div>
+              <h3 className="text-lg font-bold text-blue-900 mb-2">{t.hierarchy.gs}</h3>
+              <p className="text-blue-800 text-sm">{t.hierarchy.gsDesc}</p>
+            </div>
+            <div className="bg-gradient-to-b from-purple-50 to-purple-100 p-8 rounded-xl border-2 border-purple-300">
+              <div className="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold mb-4">DS</div>
+              <h3 className="text-lg font-bold text-purple-900 mb-2">{t.hierarchy.ds}</h3>
+              <p className="text-purple-800 text-sm">{t.hierarchy.dsDesc}</p>
+            </div>
+            <div className="bg-gradient-to-b from-slate-50 to-slate-100 p-8 rounded-xl border-2 border-slate-300">
+              <div className="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold mb-4">A</div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">{t.hierarchy.admin}</h3>
+              <p className="text-slate-800 text-sm">{t.hierarchy.adminDesc}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          9. SECURITY & PRIVACY
+      ======================== */}
+      <section className="py-20 bg-gradient-to-r from-slate-900 to-blue-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">{t.security.title}</h2>
+            <p className="text-lg text-blue-200">{t.security.desc}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex gap-4">
+              <Shield className="w-8 h-8 text-yellow-400 shrink-0" />
+              <div>
+                <h3 className="text-xl font-bold mb-2">{t.security.encryption}</h3>
+                <p className="text-blue-100">{t.security.encryptionDesc}</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <Lock className="w-8 h-8 text-yellow-400 shrink-0" />
+              <div>
+                <h3 className="text-xl font-bold mb-2">{t.security.verification}</h3>
+                <p className="text-blue-100">{t.security.verificationDesc}</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <Database className="w-8 h-8 text-yellow-400 shrink-0" />
+              <div>
+                <h3 className="text-xl font-bold mb-2">{t.security.audit}</h3>
+                <p className="text-blue-100">{t.security.auditDesc}</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <Award className="w-8 h-8 text-yellow-400 shrink-0" />
+              <div>
+                <h3 className="text-xl font-bold mb-2">{t.security.compliance}</h3>
+                <p className="text-blue-100">{t.security.complianceDesc}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          10. TESTIMONIALS
+      ======================== */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t.testimonial.title}</h2>
+            <p className="text-lg text-gray-600">{t.testimonial.desc}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: t.testimonial.user1, desc: t.testimonial.user1desc, name: t.testimonial.user1name },
+              { title: t.testimonial.user2, desc: t.testimonial.user2desc, name: t.testimonial.user2name },
+              { title: t.testimonial.user3, desc: t.testimonial.user3desc, name: t.testimonial.user3name },
+            ].map((testimonial, idx) => (
+              <div key={idx} className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl border border-blue-200">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />)}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">{testimonial.title}</h3>
+                <p className="text-gray-700 text-sm mb-4 italic">"{testimonial.desc}"</p>
+                <p className="text-sm font-semibold text-blue-900">— {testimonial.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          11. FAQ SECTION
+      ======================== */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t.faq.title}</h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              { q: t.faq.q1, a: t.faq.a1 },
+              { q: t.faq.q2, a: t.faq.a2 },
+              { q: t.faq.q3, a: t.faq.a3 },
+              { q: t.faq.q4, a: t.faq.a4 },
+              { q: t.faq.q5, a: t.faq.a5 },
+            ].map((item, idx) => (
+              <details key={idx} className="group bg-white border border-gray-200 rounded-lg p-6 cursor-pointer hover:shadow-md transition">
+                <summary className="flex items-center justify-between font-bold text-gray-900 group-open:text-blue-700">
+                  {item.q}
+                  <span className="group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p className="text-gray-700 mt-4 text-sm">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          12. NATIONAL COVERAGE
+      ======================== */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t.coverage.title}</h2>
+            <p className="text-lg text-gray-600">{t.coverage.desc}</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="p-8 bg-gradient-to-b from-blue-50 to-blue-100 rounded-xl">
+              <p className="text-4xl font-bold text-blue-900 mb-2">9</p>
+              <p className="text-gray-700">{t.coverage.provinces}</p>
+            </div>
+            <div className="p-8 bg-gradient-to-b from-purple-50 to-purple-100 rounded-xl">
+              <p className="text-4xl font-bold text-purple-900 mb-2">25</p>
+              <p className="text-gray-700">{t.coverage.districts}</p>
+            </div>
+            <div className="p-8 bg-gradient-to-b from-orange-50 to-orange-100 rounded-xl">
+              <p className="text-4xl font-bold text-orange-900 mb-2">300+</p>
+              <p className="text-gray-700">{t.coverage.divisions}</p>
+            </div>
+            <div className="p-8 bg-gradient-to-b from-green-50 to-green-100 rounded-xl">
+              <p className="text-4xl font-bold text-green-900 mb-2">5000+</p>
+              <p className="text-gray-700">{t.coverage.villages}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          13. CTA SECTION
+      ======================== */}
+      <section className="py-20 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
+        <div className="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Get Started?</h2>
+          <p className="text-xl text-blue-100 mb-10">Join millions of Sri Lankan citizens accessing government services digitally. No more queues, no more paperwork.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/register">
+              <button className="px-8 py-4 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 transition text-lg">
+                Create Account Now
+              </button>
+            </Link>
+            <Link href="/support">
+              <button className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition text-lg border-2 border-white flex items-center justify-center gap-2">
+                <Headphones size={20} />
+                Contact Support
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =======================
+          14. FOOTER
       ======================== */}
       <footer className="bg-gray-900 text-gray-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

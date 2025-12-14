@@ -2,43 +2,45 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Clock, CheckCircle, AlertCircle, ShoppingBag, ArrowRight, Sparkles, FileText, Loader2 } from 'lucide-react';
-import { getSmartRecommendations, getMyApplications, getUserProfile } from '@/lib/api'; // Added getUserProfile
+import { Clock, CheckCircle, AlertCircle, ShoppingBag, ArrowRight, Sparkles, FileText, Loader2, Heart, Zap, TrendingUp, Award, Download, Eye } from 'lucide-react';
+import { getSmartRecommendations, getMyApplications, getUserProfile, getUserDocuments, getUserCertifications, getUserNotifications } from '@/lib/api';
 
 export default function Dashboard() {
-  // State for all Real Data
   const [user, setUser] = useState({ fullname: 'Citizen' });
   const [stats, setStats] = useState({ pending: 0, completed: 0, total: 0 });
-  const [recentApps, setRecentApps] = useState<any[]>([]); // Store recent list
+  const [recentApps, setRecentApps] = useState<any[]>([]);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [triggers, setTriggers] = useState<string[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [certifications, setCertifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
         setLoading(true);
-
-        // 1. Fetch User Profile (For Name)
         const profileData = await getUserProfile();
         setUser(profileData);
 
-        // 2. Fetch Applications (For Stats & Recent List)
         const apps = await getMyApplications();
-        
-        // Calculate Stats
         const pending = apps.filter((a: any) => a.status === 'Pending').length;
         const completed = apps.filter((a: any) => a.status === 'Completed').length;
         setStats({ pending, completed, total: apps.length });
-
-        // Get Top 3 Recent Apps (Reverse to show newest first)
         setRecentApps(apps.reverse().slice(0, 3));
 
-        // 3. Fetch AI Recommendations (For Products)
         const recData = await getSmartRecommendations();
         setRecommendations(recData.products);
         setTriggers(recData.triggers);
 
+        const docsData = await getUserDocuments();
+        setDocuments((docsData || []).slice(0, 4));
+
+        const certsData = await getUserCertifications();
+        setCertifications((certsData || []).slice(0, 3));
+
+        const notifsData = await getUserNotifications();
+        setNotifications((notifsData || []).slice(0, 3));
       } catch (error) {
         console.error("Dashboard Load Error", error);
       } finally {
@@ -83,38 +85,53 @@ export default function Dashboard() {
       </div>
 
       {/* 2. Stats Grid (Real Database Counts) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-            <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm text-gray-500 font-medium">Total Applications</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
+                <p className="text-3xl font-bold text-blue-600 mt-1">{stats.total}</p>
+              </div>
+              <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><FileText size={24} /></div>
             </div>
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Clock size={24} /></div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-            <div>
+        <div className="bg-white p-6 rounded-xl border border-green-100 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm text-gray-500 font-medium">Verified Documents</p>
                 <p className="text-3xl font-bold text-green-600 mt-1">{stats.completed}</p>
+              </div>
+              <div className="p-3 bg-green-50 text-green-600 rounded-lg"><CheckCircle size={24} /></div>
             </div>
-            <div className="p-3 bg-green-50 text-green-600 rounded-lg"><CheckCircle size={24} /></div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
-            <div>
+        <div className="bg-white p-6 rounded-xl border border-orange-100 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm text-gray-500 font-medium">Pending Actions</p>
                 <p className="text-3xl font-bold text-orange-500 mt-1">{stats.pending}</p>
+              </div>
+              <div className="p-3 bg-orange-50 text-orange-600 rounded-lg"><AlertCircle size={24} /></div>
             </div>
-            <div className="p-3 bg-orange-50 text-orange-600 rounded-lg"><AlertCircle size={24} /></div>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-purple-100 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium">Digital Credits</p>
+                <p className="text-3xl font-bold text-purple-600 mt-1">5,240</p>
+              </div>
+              <div className="p-3 bg-purple-50 text-purple-600 rounded-lg"><Zap size={24} /></div>
+            </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* 3. Recent Apps List (Real Data from DB) */}
+        {/* Recent Apps List */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="font-bold text-gray-900">Recent Activity</h3>
-                <Link href="/dashboard/applications" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                    View All
+                <h3 className="font-bold text-gray-900 text-lg">📋 Recent Activity</h3>
+                <Link href="/dashboard/applications" className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                    View All <ArrowRight size={16} />
                 </Link>
             </div>
             <div className="p-0">
@@ -138,7 +155,7 @@ export default function Dashboard() {
                                         {new Date(app.created_at).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                             app.status === 'Completed' ? 'bg-green-100 text-green-700' :
                                             app.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
                                             'bg-red-100 text-red-700'
@@ -154,7 +171,7 @@ export default function Dashboard() {
             </div>
         </div>
 
-        {/* 4. SMART SUGGESTIONS (Real AI Data from DB) */}
+        {/* Smart Recommendations */}
         <div className="bg-gradient-to-b from-blue-50 to-white rounded-xl border border-blue-100 shadow-sm p-6 flex flex-col h-full">
             <div className="flex items-center gap-2 mb-4">
                 <span className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
@@ -174,7 +191,7 @@ export default function Dashboard() {
                             <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
                                 {prod.image?.startsWith('http') ? <img src={prod.image} className="w-full h-full object-cover"/> : "🛍️"}
                             </div>
-                            <div>
+                            <div className="flex-1">
                                 <p className="font-bold text-gray-900 text-sm line-clamp-1">{prod.name}</p>
                                 <p className="text-xs text-blue-600 font-bold">Rs. {prod.price}</p>
                             </div>
@@ -183,7 +200,7 @@ export default function Dashboard() {
                 </div>
             ) : (
                 <div className="flex-1 flex flex-col justify-center text-center text-gray-500 text-sm">
-                    <p className="mb-4">Complete a government service (like Birth Registration) to unlock exclusive citizen offers!</p>
+                    <p className="mb-4">Complete a government service to unlock exclusive offers!</p>
                 </div>
             )}
 
@@ -193,7 +210,125 @@ export default function Dashboard() {
                 </button>
             </Link>
         </div>
+      </div>
 
+      {/* NEW: Quick Actions Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
+        <h3 className="font-black text-2xl mb-6 text-white">⚡ Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link href="/services">
+            <button className="bg-white hover:bg-gray-50 p-6 rounded-xl text-left transition border-2 border-transparent hover:border-blue-500 shadow-md w-full">
+              <div className="text-4xl mb-3">📝</div>
+              <p className="font-bold text-base text-gray-900">Apply New Service</p>
+              <p className="text-sm text-gray-600 mt-2">Browse & apply for govt services</p>
+            </button>
+          </Link>
+          <Link href="/dashboard/documents">
+            <button className="bg-white hover:bg-gray-50 p-6 rounded-xl text-left transition border-2 border-transparent hover:border-blue-500 shadow-md w-full">
+              <div className="text-4xl mb-3">📄</div>
+              <p className="font-bold text-base text-gray-900">View Documents</p>
+              <p className="text-sm text-gray-600 mt-2">Access your digital documents</p>
+            </button>
+          </Link>
+          <Link href="/dashboard/wallet">
+            <button className="bg-white hover:bg-gray-50 p-6 rounded-xl text-left transition border-2 border-transparent hover:border-blue-500 shadow-md w-full">
+              <div className="text-4xl mb-3">💳</div>
+              <p className="font-bold text-base text-gray-900">Digital Wallet</p>
+              <p className="text-sm text-gray-600 mt-2">Manage payments & balance</p>
+            </button>
+          </Link>
+          <Link href="/dashboard/support">
+            <button className="bg-white hover:bg-gray-50 p-6 rounded-xl text-left transition border-2 border-transparent hover:border-blue-500 shadow-md w-full">
+              <div className="text-4xl mb-3">📞</div>
+              <p className="font-bold text-base text-gray-900">Get Help</p>
+              <p className="text-sm text-gray-600 mt-2">Contact support team</p>
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* NEW: My Documents Section */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="font-black text-lg">📑 My Important Documents</h3>
+          <Link href="/dashboard/documents" className="text-sm text-blue-600 hover:text-blue-800 font-medium">View All</Link>
+        </div>
+        {documents.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <FileText size={48} className="mx-auto mb-3 opacity-30" />
+            <p>No documents available</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {documents.map((doc, i) => (
+              <div key={doc.id || doc._id || i} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                <div className="flex items-start justify-between">
+                  <div className="text-2xl">{doc.icon || '📄'}</div>
+                  <button className="text-gray-400 hover:text-blue-600"><Download size={18} /></button>
+                </div>
+                <p className="font-bold text-gray-900 mt-2 text-sm">{doc.name || 'Document'}</p>
+                <p className="text-xs text-gray-500 mt-1">Issued: {doc.date || doc.issued_date || 'N/A'}</p>
+                <p className="text-xs font-semibold mt-2 text-gray-700">{doc.status || '✅ Verified'}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* NEW: Certifications & Achievements */}
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-orange-200 shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="font-black text-lg">🏆 Certifications & Achievements</h3>
+          <Link href="/dashboard/certifications" className="text-sm text-orange-600 hover:text-orange-800 font-medium">View All</Link>
+        </div>
+        {certifications.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <Award size={48} className="mx-auto mb-3 opacity-30" />
+            <p>No certifications available</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {certifications.map((cert, i) => (
+              <div key={cert.id || cert._id || i} className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition flex items-center gap-4">
+                <div className="text-4xl">{cert.icon || '🏆'}</div>
+                <div>
+                  <p className="font-bold text-gray-900 text-sm">{cert.name}</p>
+                  <p className="text-xs text-gray-500">{cert.date || 'N/A'}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* NEW: Notifications & Updates */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="font-black text-lg">🔔 Latest Updates</h3>
+          <Link href="/dashboard/notifications" className="text-sm text-blue-600 hover:text-blue-800 font-medium">See All</Link>
+        </div>
+        {notifications.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <AlertCircle size={48} className="mx-auto mb-3 opacity-30" />
+            <p>No new notifications</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {notifications.map((notif, i) => (
+              <div key={notif.id || notif._id || i} className={`p-4 rounded-lg border ${
+                notif.type === 'success' ? 'bg-green-50 border-green-200' : 
+                notif.type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 
+                'bg-blue-50 border-blue-200'
+              }`}>
+                <div className="flex justify-between">
+                  <p className="font-bold text-gray-900 text-sm">{notif.title || 'Notification'}</p>
+                  <p className="text-xs text-gray-500">{notif.time || notif.created_at || 'Recently'}</p>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">{notif.desc || notif.description || notif.message || ''}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

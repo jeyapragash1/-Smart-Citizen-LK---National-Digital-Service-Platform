@@ -14,7 +14,8 @@ import {
   X,
   Bell,
   Search,
-  Loader2
+  Loader2,
+  Home
 } from 'lucide-react';
 import { getUserProfile } from '@/lib/api'; // Import API helper
 
@@ -34,8 +35,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // 1. Fetch User Data on Mount
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const roleRaw = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+    const toCanonical = (r: string | null) => {
+      if (!r) return null;
+      const s = r.trim().toLowerCase();
+      if (s === 'admin' || s === 'super' || s === 'super admin' || s === 'system admin' || s === 'administrator') return 'admin';
+      if (s === 'ds' || s === 'divisional secretary' || s === 'divisional-secretary' || s === 'ds_officer') return 'ds';
+      if (s === 'gs' || s === 'grama niladhari' || s === 'grama-niladhari' || s === 'gs_officer') return 'gs';
+      if (s === 'citizen') return 'citizen';
+      return s;
+    };
+    const role = toCanonical(roleRaw);
+
     if (!token) {
       router.replace('/login');
+      return;
+    }
+
+    // If the logged-in role is an admin/DS/GS, redirect to their admin dashboard instead of citizen portal
+    if (role && role !== 'citizen') {
+      const target = role === 'admin' ? '/admin/super' : role === 'ds' ? '/admin/ds' : role === 'gs' ? '/admin/gs' : '/dashboard';
+      router.replace(target);
       return;
     }
 
@@ -87,6 +107,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'My Applications', icon: <FileText size={20} />, path: '/dashboard/applications' },
     { name: 'Digital Wallet', icon: <Wallet size={20} />, path: '/dashboard/wallet' },
     { name: 'Profile', icon: <User size={20} />, path: '/dashboard/profile' },
+  ];
+
+  const documentItems = [
+    { name: '📋 My Documents', path: '/dashboard/documents' },
+    { name: '✅ Certifications', path: '/dashboard/certifications' },
+    { name: '📑 Permits & Licenses', path: '/dashboard/permits' },
+  ];
+
+  const serviceItems = [
+    { name: '💳 Payment History', path: '/dashboard/payments' },
+    { name: '📞 Support & Help', path: '/dashboard/support' },
+    { name: '🔔 Notifications', path: '/dashboard/notifications' },
+  ];
+
+  const settingsItem = [
     { name: 'Settings', icon: <Settings size={20} />, path: '/dashboard/settings' },
   ];
 
@@ -103,7 +138,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
            </div>
         </div>
 
-        <nav className="p-4 space-y-2 mt-4">
+        <nav className="p-4 space-y-2 mt-4 overflow-y-auto" style={{maxHeight: 'calc(100vh - 220px)'}}>
+          {/* Back to Home Button */}
+          <Link href="/">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-blue-200 hover:bg-blue-800 hover:text-white mb-3 border border-blue-700">
+              <Home size={20} />
+              <span className="font-medium text-sm">Back to Home</span>
+            </div>
+          </Link>
+
+          {/* Main Menu */}
           {menuItems.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -115,6 +159,52 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             );
           })}
+
+          {/* Documents Section */}
+          <div className="mt-6 pt-4 border-t border-blue-700">
+            <p className="px-4 text-xs font-bold text-blue-300 uppercase tracking-widest mb-3">Documents</p>
+            {documentItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link key={item.path} href={item.path}>
+                  <div className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm ${isActive ? 'bg-blue-600 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800 hover:text-white'}`}>
+                    <span>{item.name}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Services Section */}
+          <div className="mt-4 pt-4 border-t border-blue-700">
+            <p className="px-4 text-xs font-bold text-blue-300 uppercase tracking-widest mb-3">Services</p>
+            {serviceItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link key={item.path} href={item.path}>
+                  <div className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm ${isActive ? 'bg-blue-600 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800 hover:text-white'}`}>
+                    <span>{item.name}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Settings Section */}
+          <div className="mt-4 pt-4 border-t border-blue-700">
+            <p className="px-4 text-xs font-bold text-blue-300 uppercase tracking-widest mb-3">Account</p>
+            {settingsItem.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link key={item.path} href={item.path}>
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive ? 'bg-blue-600 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800 hover:text-white'}`}>
+                    {item.icon}
+                    <span className="font-medium text-sm">{item.name}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         {/* 🔴 LOGOUT BUTTON */}

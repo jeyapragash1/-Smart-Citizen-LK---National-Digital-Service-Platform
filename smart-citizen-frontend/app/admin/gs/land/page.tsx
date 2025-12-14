@@ -8,13 +8,18 @@ export default function GSLandPage() {
   const [disputes, setDisputes] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', parties_involved: '' });
+  const [error, setError] = useState('');
 
   // Load Data
   const loadData = async () => {
     try {
         const data = await getLandDisputes();
         setDisputes(data);
-    } catch(e) { console.error(e); }
+        setError('');
+    } catch(e: any) { 
+        console.error(e);
+        setError(e?.message || 'Failed to load disputes');
+    }
   };
 
   useEffect(() => { loadData(); }, []);
@@ -23,13 +28,13 @@ export default function GSLandPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        await addLandDispute(form);
-        setIsModalOpen(false);
-        setForm({ title: '', description: '', parties_involved: '' });
-        loadData();
-        alert("Dispute Logged Successfully");
-    } catch (e) {
-        alert("Failed to log dispute");
+      await addLandDispute(form);
+      setIsModalOpen(false);
+      setForm({ title: '', description: '', parties_involved: '' });
+      loadData();
+      setError('');
+    } catch (e: any) {
+      setError(e?.message || 'Failed to log dispute');
     }
   };
 
@@ -43,6 +48,7 @@ export default function GSLandPage() {
        </div>
        
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         {error && <div className="md:col-span-2 p-3 bg-red-50 text-red-700 text-sm border border-red-200 rounded-lg">{error}</div>}
           {disputes.map((d) => (
             <div key={d._id} className="bg-white p-6 rounded-xl border-l-4 border-red-500 shadow-sm">
                 <div className="flex justify-between mb-2">

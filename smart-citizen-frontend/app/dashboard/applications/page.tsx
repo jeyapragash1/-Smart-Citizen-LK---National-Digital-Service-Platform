@@ -290,11 +290,11 @@ export default function ApplicationsPage() {
                                 applicationId={selectedApp._id}
                                 currentStage={selectedApp.current_approval_stage || 'pending'}
                                 approvalChain={selectedApp.approval_chain}
-                                onApprove={() => {
+                                onApprove={async () => {
                                     // This would be called by officer reviewing the application
                                     console.log('Approved:', selectedApp._id);
                                 }}
-                                onReject={() => {
+                                onReject={async () => {
                                     // This would be called by officer reviewing the application
                                     console.log('Rejected:', selectedApp._id);
                                 }}

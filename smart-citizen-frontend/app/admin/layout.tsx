@@ -18,7 +18,10 @@ import {
   Lock,
   ShoppingBag,
   Settings,
-  DollarSign
+  DollarSign,
+  Home,
+  Bell,
+  BarChart3
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -38,7 +41,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // 🚦 Client-side auth/role guard
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const role = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+    const roleRaw = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+    const role = roleRaw ? roleRaw.toLowerCase() : null;
+
+    // Map various stored role labels to canonical keys
+    const toCanonical = (r: string | null) => {
+      if (!r) return null;
+      const s = r.trim().toLowerCase();
+      if (s === 'admin' || s === 'super' || s === 'super admin' || s === 'system admin' || s === 'administrator') return 'admin';
+      if (s === 'ds' || s === 'divisional secretary' || s === 'divisional-secretary' || s === 'ds_officer') return 'ds';
+      if (s === 'gs' || s === 'grama niladhari' || s === 'grama-niladhari' || s === 'gs_officer') return 'gs';
+      return s; // fall through to stored value
+    };
+    const canonicalRole = toCanonical(role);
 
     // Map path to required role
     const requiredRole = pathname.startsWith('/admin/gs')
@@ -49,13 +64,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ? 'admin'
       : null;
 
-    if (!token || !role) {
+    if (!token || !canonicalRole) {
       router.replace('/login');
       return;
     }
 
-    if (requiredRole && role !== requiredRole) {
-      router.replace('/dashboard');
+    if (requiredRole && canonicalRole !== requiredRole) {
+      // Redirect to the correct role home instead of citizen dashboard
+      const target = canonicalRole === 'admin'
+        ? '/admin/super'
+        : canonicalRole === 'ds'
+        ? '/admin/ds'
+        : canonicalRole === 'gs'
+        ? '/admin/gs'
+        : '/dashboard';
+      router.replace(target);
       return;
     }
 
@@ -73,10 +96,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     themeColor = 'bg-blue-900';
     menuItems = [
       { name: 'GS Overview', icon: <LayoutDashboard size={20} />, path: '/admin/gs' },
-      { name: 'Application Approvals', icon: <FileCheck size={20} />, path: '/admin/gs/approvals' },
-      { name: 'Manage Citizens', icon: <Users size={20} />, path: '/admin/gs/citizens' },
+      { name: 'Verify Applications', icon: <FileCheck size={20} />, path: '/admin/gs/verify' },
       { name: 'Villager Database', icon: <Users size={20} />, path: '/admin/gs/villagers' },
       { name: 'Land Disputes', icon: <MapPin size={20} />, path: '/admin/gs/land' },
+      { name: 'Certificates', icon: <Stamp size={20} />, path: '/admin/gs/certificates' },
+      { name: 'Records & Archives', icon: <FileText size={20} />, path: '/admin/gs/records' },
+      { name: 'Statistics', icon: <Activity size={20} />, path: '/admin/gs/statistics' },
+      { name: 'Messages', icon: <ShoppingBag size={20} />, path: '/admin/gs/messages' },
+      { name: 'Settings', icon: <Settings size={20} />, path: '/admin/gs/settings' },
     ];
   } else if (pathname.startsWith('/admin/ds')) {
     currentRole = 'DIVISIONAL SECRETARY';
@@ -84,9 +111,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     menuItems = [
       { name: 'DS Overview', icon: <LayoutDashboard size={20} />, path: '/admin/ds' },
       { name: 'Application Approvals', icon: <FileCheck size={20} />, path: '/admin/ds/approvals' },
+      { name: 'Batch Approvals', icon: <FileCheck size={20} />, path: '/admin/ds/batch' },
       { name: 'Manage GS Officers', icon: <Users size={20} />, path: '/admin/ds/gs' },
+      { name: 'GS Performance', icon: <Activity size={20} />, path: '/admin/ds/performance' },
       { name: 'Signed Certificates', icon: <FileText size={20} />, path: '/admin/ds/certificates' },
-      { name: 'Regional Reports', icon: <Building2 size={20} />, path: '/admin/ds/reports' },
+      { name: 'Quality Assurance', icon: <FileCheck size={20} />, path: '/admin/ds/qa' },
+      { name: 'Citizen Complaints', icon: <ShieldAlert size={20} />, path: '/admin/ds/complaints' },
+      { name: 'Activity Logs', icon: <Activity size={20} />, path: '/admin/ds/logs' },
+      { name: 'Digital Signatures', icon: <Lock size={20} />, path: '/admin/ds/signatures' },
+      { name: 'Workflow Analytics', icon: <BarChart3 size={20} />, path: '/admin/ds/analytics' },
+      { name: 'Notifications', icon: <Bell size={20} />, path: '/admin/ds/notifications' },
+      { name: 'Report Generator', icon: <FileText size={20} />, path: '/admin/ds/reports' },
+      { name: 'Escalations', icon: <ShieldAlert size={20} />, path: '/admin/ds/escalations' },
+      { name: 'Regional Reports', icon: <Building2 size={20} />, path: '/admin/ds/regional' },
+      { name: 'Revenue & Payments', icon: <DollarSign size={20} />, path: '/admin/ds/revenue' },
+      { name: 'Messages', icon: <ShoppingBag size={20} />, path: '/admin/ds/messages' },
+      { name: 'Settings', icon: <Settings size={20} />, path: '/admin/ds/settings' },
     ];
   } else if (pathname.startsWith('/admin/super')) {
     currentRole = 'SUPER ADMIN';
@@ -100,6 +140,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       { name: 'Revenue Analytics', icon: <DollarSign size={20} />, path: '/admin/super/revenue' },
       { name: 'Security & Logs', icon: <ShieldAlert size={20} />, path: '/admin/super/logs' },
       { name: 'Database Config', icon: <Lock size={20} />, path: '/admin/super/db' },
+      { name: 'Deployments & CI/CD', icon: <Activity size={20} />, path: '/admin/super/deployments' },
+      { name: 'Alerts & Notifications', icon: <Bell size={20} />, path: '/admin/super/notifications' },
+      { name: 'Audit & Compliance', icon: <ShieldAlert size={20} />, path: '/admin/super/audit' },
+      { name: 'Integrations', icon: <Settings size={20} />, path: '/admin/super/integrations' },
+      { name: 'Feature Flags', icon: <Settings size={20} />, path: '/admin/super/features' },
+      { name: 'Support Desk', icon: <Users size={20} />, path: '/admin/super/support' },
     ];
   }
 
@@ -128,6 +174,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Menu */}
         <nav className="p-4 space-y-1 mt-4">
+          {/* Back to Home Button */}
+          <Link href="/">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-white/60 hover:bg-white/10 hover:text-white mb-4 border border-white/20">
+              <Home size={20} />
+              <span className="font-medium text-sm">Back to Home</span>
+            </div>
+          </Link>
+          
           {menuItems.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -162,7 +216,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <p className="text-sm font-bold text-gray-900">System Admin</p>
                     <p className="text-xs text-gray-500">{currentRole}</p>
                 </div>
-                <div className={`w-10 h-10 ${themeColor} rounded-full flex items-center justify-center text-white font-bold shadow-md`}>OP</div>
+                <button
+                  onClick={() => {
+                    const roleRaw = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+                    const s = roleRaw ? roleRaw.toLowerCase() : null;
+                    const toCanonical = (r: string | null) => {
+                      if (!r) return null;
+                      const x = r.trim().toLowerCase();
+                      if (x === 'admin' || x === 'super' || x === 'super admin' || x === 'system admin' || x === 'administrator') return 'admin';
+                      if (x === 'ds' || x === 'divisional secretary' || x === 'divisional-secretary' || x === 'ds_officer') return 'ds';
+                      if (x === 'gs' || x === 'grama niladhari' || x === 'grama-niladhari' || x === 'gs_officer') return 'gs';
+                      return x;
+                    };
+                    const role = toCanonical(s);
+                    const target = role === 'admin' ? '/admin/super' : role === 'ds' ? '/admin/ds' : role === 'gs' ? '/admin/gs' : '/dashboard';
+                    router.push(target);
+                  }}
+                  className={`w-10 h-10 ${themeColor} rounded-full flex items-center justify-center text-white font-bold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                  aria-label="Open role dashboard"
+                >
+                  OP
+                </button>
             </div>
         </header>
 

@@ -207,3 +207,205 @@ async def get_system_stats(current_user: dict = Depends(get_current_user_with_ro
         "health": "Operational",
         "logs": logs
     }
+    
+# --- 5. DEPLOYMENTS ENDPOINT ---
+@router.get("/deployments")
+async def get_deployments(current_user: dict = Depends(get_current_user_with_role)):
+    """Get CI/CD deployments"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return [
+        {
+            "id": "deploy-001",
+            "env": "Production",
+            "version": "v2.3.5",
+            "status": "Success",
+            "timestamp": "2025-12-14T10:12:00Z",
+            "duration": "2m 15s",
+            "deployed_by": "CI/CD Pipeline"
+        },
+        {
+            "id": "deploy-002",
+            "env": "Staging",
+            "version": "v2.3.6-rc",
+            "status": "Running",
+            "timestamp": "2025-12-14T14:05:00Z",
+            "duration": "In progress",
+            "deployed_by": "Automated"
+        },
+        {
+            "id": "deploy-003",
+            "env": "DR Site",
+            "version": "v2.3.4",
+            "status": "Success",
+            "timestamp": "2025-12-13T10:00:00Z",
+            "duration": "1m 45s",
+            "deployed_by": "CI/CD Pipeline"
+        }
+    ]
+
+# --- 6. SUPPORT TICKETS ENDPOINT ---
+@router.get("/support/tickets")
+async def get_support_tickets(current_user: dict = Depends(get_current_user_with_role)):
+    """Get support tickets"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return [
+        {
+            "id": "TICKET-001",
+            "subject": "Login Issues with DS Dashboard",
+            "priority": "High",
+            "status": "Open",
+            "created_at": "2025-12-14T08:00:00Z",
+            "updated_at": "2025-12-14T10:30:00Z",
+            "assignee": "Support Team",
+            "description": "Users unable to access DS admin dashboard"
+        },
+        {
+            "id": "TICKET-002",
+            "subject": "Certificate Generation Error",
+            "priority": "High",
+            "status": "In Progress",
+            "created_at": "2025-12-14T09:15:00Z",
+            "updated_at": "2025-12-14T14:00:00Z",
+            "assignee": "Technical Support",
+            "description": "PDF certificates not generating for completed applications"
+        },
+        {
+            "id": "TICKET-003",
+            "subject": "Feature Request: Bulk Upload",
+            "priority": "Low",
+            "status": "Open",
+            "created_at": "2025-12-13T15:00:00Z",
+            "updated_at": "2025-12-13T15:00:00Z",
+            "assignee": "Product Team",
+            "description": "Request for bulk upload functionality for citizen records"
+        }
+    ]
+
+# --- 7. INTEGRATIONS ENDPOINT ---
+@router.get("/integrations")
+async def get_integrations(current_user: dict = Depends(get_current_user_with_role)):
+    """Get third-party service integrations"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return [
+        {
+            "id": "integ-001",
+            "name": "SMS Provider (Dialog)",
+            "status": "Connected",
+            "health": "Healthy",
+            "lastSync": "2025-12-14T12:00:00Z",
+            "uptime": "99.95%",
+            "connection_type": "API"
+        },
+        {
+            "id": "integ-002",
+            "name": "Email Service (SendGrid)",
+            "status": "Connected",
+            "health": "Degraded",
+            "lastSync": "2025-12-14T11:30:00Z",
+            "uptime": "98.50%",
+            "connection_type": "API",
+            "issues": "High latency observed"
+        },
+        {
+            "id": "integ-003",
+            "name": "Payment Gateway (Stripe)",
+            "status": "Connected",
+            "health": "Healthy",
+            "lastSync": "2025-12-14T13:45:00Z",
+            "uptime": "99.99%",
+            "connection_type": "API"
+        },
+        {
+            "id": "integ-004",
+            "name": "Document Storage (S3)",
+            "status": "Connected",
+            "health": "Healthy",
+            "lastSync": "2025-12-14T12:30:00Z",
+            "uptime": "100%",
+            "connection_type": "Cloud Storage"
+        },
+        {
+            "id": "integ-005",
+            "name": "Analytics (Google Analytics)",
+            "status": "Connected",
+            "health": "Healthy",
+            "lastSync": "2025-12-14T11:00:00Z",
+            "uptime": "99.90%",
+            "connection_type": "API"
+        }
+    ]
+
+# --- 8. FEATURE FLAGS ENDPOINT ---
+@router.get("/features")
+async def get_feature_flags(current_user: dict = Depends(get_current_user_with_role)):
+    """Get feature flags for controlled rollout"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return [
+        {
+            "key": "new_ds_dashboard",
+            "name": "New DS Dashboard",
+            "enabled": True,
+            "description": "Roll out new DS admin dashboard UI",
+            "rollout_percentage": 25,
+            "created_at": "2025-12-01T00:00:00Z",
+            "last_modified": "2025-12-14T10:00:00Z"
+        },
+        {
+            "key": "payments_v2",
+            "name": "Payments v2",
+            "enabled": False,
+            "description": "New payment processing system with better security",
+            "rollout_percentage": 0,
+            "created_at": "2025-11-15T00:00:00Z",
+            "last_modified": "2025-12-10T12:00:00Z"
+        },
+        {
+            "key": "sms_dr_fallback",
+            "name": "SMS DR Fallback",
+            "enabled": True,
+            "description": "Auto failover to secondary SMS provider on primary failure",
+            "rollout_percentage": 100,
+            "created_at": "2025-11-20T00:00:00Z",
+            "last_modified": "2025-12-05T08:00:00Z"
+        },
+        {
+            "key": "advanced_reporting",
+            "name": "Advanced Reporting",
+            "enabled": True,
+            "description": "Enhanced analytics and custom report generation",
+            "rollout_percentage": 50,
+            "created_at": "2025-12-08T00:00:00Z",
+            "last_modified": "2025-12-14T09:30:00Z"
+        },
+        {
+            "key": "ai_recommendations",
+            "name": "AI Recommendations",
+            "enabled": False,
+            "description": "AI-powered service recommendations for citizens",
+            "rollout_percentage": 0,
+            "created_at": "2025-12-10T00:00:00Z",
+            "last_modified": "2025-12-14T14:00:00Z"
+        }
+    ]
+
+    @router.put("/features/{feature_key}")
+    async def toggle_feature_flag(feature_key: str, enabled: bool, current_user: dict = Depends(get_current_user_with_role)):
+        """Toggle feature flag on/off"""
+        if current_user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Not authorized")
+    
+        # TODO: Update feature flag in database
+        return {
+            "message": f"Feature '{feature_key}' set to {enabled}",
+            "key": feature_key,
+            "enabled": enabled,
+            "updated_at": "2025-12-14T15:00:00Z"
+        }
