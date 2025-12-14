@@ -16,14 +16,37 @@
 *   **Payment Gateway:** Simulated PayHere/LankaQR integration.
 
 ### 🏛️ Government Admin Portals
-*   **Grama Niladhari (GS) Dashboard:** Manage village-level verifications and land disputes.
-*   **Divisional Secretary (DS) Dashboard:** Final approval queue and Digital Signature issuance.
-*   **Super Admin Dashboard:** System monitoring, Revenue analytics, and User management.
+*   **Grama Niladhari (GS) Dashboard:** 
+    *   Village-level verifications and land dispute management
+    *   Citizen record management
+    *   Land registration and verification
+    *   Local statistics and reporting
+*   **Divisional Secretary (DS) Dashboard:** 
+    *   **Approval Queue:** Multi-level application processing
+    *   **Regional Operations:** Real-time division monitoring and incident tracking
+    *   **Certificate Management:** Digital signature issuance with QR verification
+    *   **Analytics Dashboard:** Live performance metrics and approval statistics
+    *   **Audit Logs:** Complete system activity tracking with security monitoring
+    *   **Notifications:** Real-time alerts for pending actions and escalations
+*   **Super Admin Dashboard (President/System Admin):** 
+    *   **System Monitor:** Real-time health metrics, citizen count, transaction tracking
+    *   **Division Management:** Assign DS officers to provinces/districts/divisions
+    *   **User Management:** Create/manage GS, DS, and Admin accounts
+    *   **Service Configuration:** Update prices, processing times, and availability
+    *   **Revenue Analytics:** Detailed breakdowns by service type and region
+    *   **Audit & Security Logs:** Terminal-style security event monitoring
+    *   **Deployments:** CI/CD pipeline monitoring and version tracking
+    *   **Support Tickets:** Centralized helpdesk and issue management
+    *   **Integrations:** Third-party service health monitoring (SMS, Email, Payments, Storage)
+    *   **Feature Flags:** Controlled rollout of new features with percentage-based deployment
 
 ### 🤖 Tech Features
 *   **AI Chatbot:** NLP-based assistant for service queries.
 *   **PDF Generation:** Automated official certificate generation (Python ReportLab).
 *   **Real-time Analytics:** Live charts for revenue and application status.
+*   **Real-time Data Integration:** Zero hardcoded data - all dashboards fetch live data from MongoDB with loading states and error handling.
+*   **Role-based Access Control:** JWT-secured endpoints with admin/DS/GS/citizen role verification.
+*   **Audit Trail System:** Complete activity logging with timestamps, severity levels, and security monitoring.
 
 ---
 
@@ -31,11 +54,13 @@
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
-| **Frontend** | **Next.js 14 (React)** | App Router, Tailwind CSS, TypeScript, Lucide Icons |
-| **Backend** | **Python FastAPI** | High-performance Async API, Pydantic Models |
-| **Database** | **MongoDB Atlas** | Cloud NoSQL Database (Motor Async Driver) |
+| **Frontend** | **Next.js 16.0.10 (React 19)** | App Router with Turbopack, Tailwind CSS, TypeScript, Lucide Icons |
+| **Backend** | **Python FastAPI** | High-performance Async API, Pydantic Models, Motor Driver |
+| **Database** | **MongoDB Atlas** | Cloud NoSQL Database with async Motor driver |
 | **Security** | **JWT & Bcrypt** | Secure Token Authentication & Password Hashing |
-| **Utils** | **ReportLab** | PDF Generation Engine |
+| **State Management** | **React Hooks** | useState, useEffect with real-time data fetching |
+| **PDF Generation** | **ReportLab** | Automated official certificate generation |
+| **API Architecture** | **RESTful Design** | Role-based routing with /admin, /ds, /gs, /auth endpoints |
 
 ---
 
@@ -110,17 +135,18 @@ Use these accounts to test the different dashboards.
 
 | Role | NIC (User ID) | Password | Portal Features |
 | :--- | :--- | :--- | :--- |
-| **Super Admin** | `999999999V` | `admin` | System Stats, Product Manager, Officer Creation |
-| **GS Officer** | `888888888V` | `gs` | Village Verifications, Land Disputes |
-| **DS Officer** | `777777777V` | `ds` | Final Approvals, Certificate Issuing |
-| **Citizen** | *(Register New)* | *(Your Choice)* | Apply Services, Wallet, Marketplace |
+| **Super Admin** | `900000000V` | `admin` | System Monitor, Division Management, Service Config, Revenue, Deployments, Support, Integrations, Feature Flags |
+| **GS Officer** | `888888888V` | `gs` | Village Verifications, Land Disputes, Citizen Records |
+| **DS Officer** | `21234567890` or `199911223344` | `ds` | Approval Queue, Regional Operations, Certificate Issuing, Analytics, Audit Logs |
+| **Citizen** | *(Register New)* | *(Your Choice)* | Apply Services, Wallet, Marketplace, AI Recommendations |
 
 ---
 
 ## 🧪 How to Test the Full Flow
 
+### 🎯 Citizen Application Flow
 1.  **Register** a new Citizen account (`http://localhost:3000/register`).
-2.  **Login** and apply for a **"Birth Certificate"**.
+2.  **Login** and apply for a **"Birth Certificate"** or **"NIC Application"**.
 3.  **Login as GS Officer** (`888888888V`) -> Go to "Pending Verifications" -> **Approve**.
 4.  **Login as DS Officer** (`777777777V`) -> Go to "Approval Queue" -> **Sign & Issue**.
 5.  **Login as Citizen** again -> Check **Digital Wallet**.
@@ -129,9 +155,68 @@ Use these accounts to test the different dashboards.
 6.  Check **Dashboard**:
     *   See "Smart AI Recommendations" (e.g., Baby Products) appearing because the Birth Certificate was approved!
 
+### 👑 Super Admin Features (NEW)
+1.  **Login as Super Admin** (`999999999V` / `admin`).
+2.  **System Monitor:** View real-time citizen count, transactions, revenue, and security logs.
+3.  **Division Management:** Navigate to `/admin/super/divisions` -> Assign DS officers to specific provinces/districts.
+4.  **Service Configuration:** Go to `/admin/super/services` -> Update prices and processing times for any government service.
+5.  **Revenue Analytics:** Check `/admin/super/revenue` for detailed service-wise revenue breakdowns.
+6.  **Audit Logs:** Visit `/admin/super/logs` to see terminal-style security event monitoring.
+7.  **Deployments:** Monitor CI/CD pipeline status at `/admin/super/deployments`.
+8.  **Support Tickets:** Manage helpdesk tickets at `/admin/super/support`.
+9.  **Integrations:** Check third-party service health at `/admin/super/integrations`.
+10. **Feature Flags:** Control feature rollouts at `/admin/super/features`.
+
+### 📊 DS Dashboard Features (NEW)
+1.  **Login as DS Officer** (`777777777V` / `ds`).
+2.  **Regional Operations:** View real-time statistics for your assigned division at `/admin/ds/regional`.
+3.  **Approval Queue:** Process pending applications with multi-stage workflow.
+4.  **Analytics:** Monitor approval rates, pending counts, and processing times.
+5.  **Audit Logs:** Track all activities within your division.
+6.  **Notifications:** Receive real-time alerts for escalations and urgent cases.
+
 ---
 
-## 📂 Project Structure
+## � Backend API Endpoints
+
+### Authentication
+*   `POST /api/auth/register` - Register new user
+*   `POST /api/auth/login` - User login (returns JWT)
+
+### Citizen Services
+*   `GET /api/applications` - Get user's applications
+*   `POST /api/applications` - Submit new application
+*   `GET /api/products` - Get marketplace products
+*   `POST /api/recommendations` - Get AI-powered recommendations
+
+### Admin Endpoints (Protected - Admin Role)
+*   `GET /api/admin/stats` - System statistics (citizens, transactions, revenue)
+*   `GET /api/admin/users` - Get all officers (GS, DS, Admin)
+*   `DELETE /api/admin/users/{id}` - Remove officer
+*   `GET /api/admin/divisions` - Get all DS divisions
+*   `POST /api/admin/assign-ds` - Assign DS to division
+*   `GET /api/admin/services` - Get all services configuration
+*   `PUT /api/admin/services/{id}` - Update service details
+*   `GET /api/admin/revenue` - Revenue analytics by service
+*   `GET /api/admin/deployments` - CI/CD deployment status
+*   `GET /api/admin/support/tickets` - Support ticket management
+*   `GET /api/admin/integrations` - Third-party integrations health
+*   `GET /api/admin/features` - Feature flags configuration
+
+### DS Endpoints (Protected - DS Role)
+*   `GET /api/ds/queue` - Applications pending DS approval
+*   `GET /api/ds/stats` - Division-level statistics
+*   `GET /api/ds/audit-logs` - Audit trail for division
+*   `GET /api/ds/notifications` - Real-time notifications
+*   `POST /api/ds/approve/{id}` - Approve application & generate certificate
+
+### GS Endpoints (Protected - GS Role)
+*   `GET /api/gs/queue` - Applications pending GS verification
+*   `POST /api/gs/verify/{id}` - Verify and forward to DS
+
+---
+
+## �📂 Project Structure
 ```plaintext
 smart-citizen/
 ├── smart-citizen-backend/
