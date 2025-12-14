@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from database import user_collection, application_collection, service_collection
-from auth import get_current_user
+from auth import get_current_user_with_role
 from pydantic import BaseModel
 from bson import ObjectId
 
@@ -15,7 +15,9 @@ class ServiceUpdate(BaseModel):
 # --- 1. OFFICER MANAGEMENT ---
 
 @router.get("/users")
-async def get_all_officers(current_user: str = Depends(get_current_user)):
+async def get_all_officers(current_user: dict = Depends(get_current_user_with_role)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     officers = []
     # Find all users who are NOT 'citizen'
     cursor = user_collection.find({"role": {"$in": ["gs", "ds", "admin"]}})
@@ -30,16 +32,81 @@ async def get_all_officers(current_user: str = Depends(get_current_user)):
     return officers
 
 @router.delete("/users/{user_id}")
-async def delete_officer(user_id: str, current_user: str = Depends(get_current_user)):
+async def delete_officer(user_id: str, current_user: dict = Depends(get_current_user_with_role)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     result = await user_collection.delete_one({"_id": ObjectId(user_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "Officer removed successfully"}
 
+# --- NEW: ASSIGN DS TO DIVISION ---
+class AssignDSRequest(BaseModel):
+    ds_nic: str
+    province: str
+    district: str
+    ds_division: str
+
+@router.post("/assign-ds")
+async def assign_ds_to_division(data: AssignDSRequest, current_user: dict = Depends(get_current_user_with_role)):
+    """President/Admin assigns DS officer to a specific division"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only President/Admin can assign DS officers")
+    
+    # Find the DS user
+    ds_user = await user_collection.find_one({"nic": data.ds_nic, "role": "ds"})
+    if not ds_user:
+        raise HTTPException(status_code=404, detail="DS officer not found")
+    
+    # Update DS with division assignment
+    await user_collection.update_one(
+        {"nic": data.ds_nic},
+        {"$set": {
+            "province": data.province,
+            "district": data.district,
+            "ds_division": data.ds_division,
+            "reports_to": current_user["nic"]  # DS reports to President/Admin
+        }}
+    )
+    
+    return {
+        "message": f"DS {ds_user['fullname']} assigned to {data.ds_division}",
+        "details": {
+            "ds_name": ds_user['fullname'],
+            "province": data.province,
+            "district": data.district,
+            "division": data.ds_division
+        }
+    }
+
+# --- GET ALL DS DIVISIONS ---
+@router.get("/divisions")
+async def get_all_divisions(current_user: dict = Depends(get_current_user_with_role)):
+    """Get all DS divisions with assigned officers"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    divisions = []
+    cursor = user_collection.find({"role": "ds"})
+    async for ds in cursor:
+        divisions.append({
+            "ds_nic": ds["nic"],
+            "ds_name": ds["fullname"],
+            "province": ds.get("province", "Unassigned"),
+            "district": ds.get("district", "Unassigned"),
+            "division": ds.get("ds_division", "Unassigned"),
+            "phone": ds.get("phone"),
+            "email": ds.get("email")
+        })
+    
+    return divisions
+
 # --- 2. SERVICE CONFIGURATION ---
 
 @router.get("/services")
-async def get_services(current_user: str = Depends(get_current_user)):
+async def get_services(current_user: dict = Depends(get_current_user_with_role)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     services = []
     cursor = service_collection.find({})
     async for svc in cursor:
@@ -60,7 +127,9 @@ async def get_services(current_user: str = Depends(get_current_user)):
     return services
 
 @router.put("/services/{service_id}")
-async def update_service(service_id: str, data: ServiceUpdate, current_user: str = Depends(get_current_user)):
+async def update_service(service_id: str, data: ServiceUpdate, current_user: dict = Depends(get_current_user_with_role)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     await service_collection.update_one(
         {"_id": ObjectId(service_id)},
         {"$set": {"price": data.price, "days": data.days, "active": data.active}}
@@ -70,7 +139,9 @@ async def update_service(service_id: str, data: ServiceUpdate, current_user: str
 # --- 3. REVENUE ANALYTICS ---
 
 @router.get("/revenue")
-async def get_revenue_stats(current_user: str = Depends(get_current_user)):
+async def get_revenue_stats(current_user: dict = Depends(get_current_user_with_role)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     # Calculate revenue from Completed applications
     pipeline = [
         {"$match": {"status": "Completed"}},
@@ -108,7 +179,9 @@ async def get_revenue_stats(current_user: str = Depends(get_current_user)):
 
 # --- 4. SYSTEM STATS (NEW) ---
 @router.get("/stats")
-async def get_system_stats(current_user: str = Depends(get_current_user)):
+async def get_system_stats(current_user: dict = Depends(get_current_user_with_role)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     # 1. Count Citizens
     total_citizens = await user_collection.count_documents({"role": "citizen"})
     

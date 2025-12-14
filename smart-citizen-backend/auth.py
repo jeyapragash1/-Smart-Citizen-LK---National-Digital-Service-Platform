@@ -38,11 +38,23 @@ def create_access_token(data: dict):
 # 4. Dependency: Get Current User (NIC) from Token
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        # Decode the token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         nic: str = payload.get("sub")
         if nic is None:
             raise HTTPException(status_code=401, detail="Invalid token credentials")
         return nic
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+
+# 5. Dependency: Get Current User (NIC + role) from Token
+def get_current_user_with_role(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        nic: str = payload.get("sub")
+        role: str = payload.get("role")
+        if nic is None or role is None:
+            raise HTTPException(status_code=401, detail="Invalid token credentials")
+        return {"nic": nic, "role": role}
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")

@@ -26,12 +26,11 @@ export default function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const handleSend = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!input.trim()) return;
+  const sendMessage = async (message: string) => {
+    if (!message.trim()) return;
 
-    const userText = input;
-    setInput(''); // Clear input immediately
+    const userText = message;
+    setInput('');
 
     // 1. Add User Message
     const userMsg: Message = { id: Date.now(), text: userText, sender: 'user' };
@@ -57,6 +56,11 @@ export default function Chatbot() {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleSend = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    sendMessage(input);
   };
 
   return (
@@ -123,9 +127,9 @@ export default function Chatbot() {
 
           {/* Quick Actions */}
           <div className="px-4 pb-2 bg-gray-50 flex gap-2 overflow-x-auto no-scrollbar">
-             <button onClick={() => { setInput('How much is a Passport?'); handleSend(); }} className="whitespace-nowrap px-3 py-1 bg-white border border-blue-200 text-blue-600 text-xs rounded-full hover:bg-blue-50">🛂 Passport Fee</button>
-             <button onClick={() => { setInput('How to get NIC?'); handleSend(); }} className="whitespace-nowrap px-3 py-1 bg-white border border-blue-200 text-blue-600 text-xs rounded-full hover:bg-blue-50">🆔 Get NIC</button>
-             <button onClick={() => { setInput('Online Payment'); handleSend(); }} className="whitespace-nowrap px-3 py-1 bg-white border border-blue-200 text-blue-600 text-xs rounded-full hover:bg-blue-50">💳 Payments</button>
+             <button onClick={() => sendMessage('How much is a Passport?')} className="whitespace-nowrap px-3 py-1 bg-white border border-blue-200 text-blue-600 text-xs rounded-full hover:bg-blue-50">🛂 Passport Fee</button>
+             <button onClick={() => sendMessage('How to get NIC?')} className="whitespace-nowrap px-3 py-1 bg-white border border-blue-200 text-blue-600 text-xs rounded-full hover:bg-blue-50">🆔 Get NIC</button>
+             <button onClick={() => sendMessage('Online Payment')} className="whitespace-nowrap px-3 py-1 bg-white border border-blue-200 text-blue-600 text-xs rounded-full hover:bg-blue-50">💳 Payments</button>
           </div>
 
           {/* Input Area */}

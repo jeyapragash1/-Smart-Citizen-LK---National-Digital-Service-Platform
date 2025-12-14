@@ -22,6 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
 
   // State for User Data
   const [user, setUser] = useState({
@@ -32,6 +33,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // 1. Fetch User Data on Mount
   useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+
     async function loadUserData() {
       try {
         const data = await getUserProfile();
@@ -53,6 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
     }
     loadUserData();
+    setAuthChecked(true);
   }, []);
 
   // 🔴 LOGOUT FUNCTION
@@ -65,6 +73,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Redirect
     router.push('/login');
   };
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Verifying session...
+      </div>
+    );
+  }
 
   const menuItems = [
     { name: 'Overview', icon: <LayoutDashboard size={20} />, path: '/dashboard' },

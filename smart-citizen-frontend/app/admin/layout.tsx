@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
 import { 
@@ -25,16 +25,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter(); // Hook for navigation
+  const [authChecked, setAuthChecked] = useState(false);
 
   // 🔴 LOGOUT FUNCTION
   const handleLogout = () => {
-    // 1. In a real app, clear cookies/tokens here
-    console.log("Clearing Admin Session...");
-    localStorage.removeItem("adminToken"); 
-    
-    // 2. Redirect to Login
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
     router.push('/login');
   };
+
+  // 🚦 Client-side auth/role guard
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const role = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+
+    // Map path to required role
+    const requiredRole = pathname.startsWith('/admin/gs')
+      ? 'gs'
+      : pathname.startsWith('/admin/ds')
+      ? 'ds'
+      : pathname.startsWith('/admin/super')
+      ? 'admin'
+      : null;
+
+    if (!token || !role) {
+      router.replace('/login');
+      return;
+    }
+
+    if (requiredRole && role !== requiredRole) {
+      router.replace('/dashboard');
+      return;
+    }
+
+    setAuthChecked(true);
+  }, [pathname, router]);
 
   // 🤖 AUTO-DETECT ROLE
   let currentRole = 'GUEST';
@@ -72,6 +98,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       { name: 'Security & Logs', icon: <ShieldAlert size={20} />, path: '/admin/super/logs' },
       { name: 'Database Config', icon: <Lock size={20} />, path: '/admin/super/db' },
     ];
+  }
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Verifying access...
+      </div>
+    );
   }
 
   return (

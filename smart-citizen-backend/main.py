@@ -1,10 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import database
-from routes import auth_routes, application_routes, product_routes, recommendation_routes, user_routes, gs_routes, ds_routes, admin_routes
-from routes import auth_routes, application_routes, product_routes, recommendation_routes, user_routes, gs_routes # <--- Added gs_routes
-from routes import auth_routes, application_routes, product_routes, recommendation_routes, user_routes, gs_routes, ds_routes
-from routes import auth_routes, application_routes, product_routes, recommendation_routes, user_routes, gs_routes, ds_routes, admin_routes, chat_routes
+from routes import (
+    auth_routes,
+    application_routes,
+    product_routes,
+    recommendation_routes,
+    user_routes,
+    gs_routes,
+    ds_routes,
+    admin_routes,
+    chat_routes,
+)
 
 
 app = FastAPI(title="Smart Citizen LK Backend")
